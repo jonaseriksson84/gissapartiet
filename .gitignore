@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+pnpm-debug.log*
+
+# SvelteKit
+.svelte-kit/
+build/
+package/
+
+# Vite
+*.timestamp-*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Cloudflare / Wrangler
+.wrangler/
+.dev.vars
+.dev.vars.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Tooling artifacts
+.playwright-cli/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db

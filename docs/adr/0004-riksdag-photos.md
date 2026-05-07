@@ -1,0 +1,5 @@
+# Use Riksdagen's MP photos with attribution
+
+The 349 MPs' portrait photos come from Riksdagen's image archive (`data.riksdagen.se/filarkiv/bilder/ledamot/...`). Wikimedia Commons was rejected because coverage is patchy for small-party and recently-elected MPs — exactly the long tail the game needs to render fairly. Riksdagen's archive is complete, stylistically uniform (a strong product property — varying photo styles would leak party signal non-visually), and kept current as MPs change.
+
+**Licensing reading:** Riksdagen's open-data terms have an apparent contradiction — they say images are excluded from the open licence as copyright-protected, then in the next paragraph specify a mandatory attribution format (`"Foto: Sveriges riksdag"`) for image use. The only coherent reading is that Riksdagen pre-grants reuse permission conditional on that attribution. We rely on this reading and surface the attribution prominently in the footer. If a Riksdag legal contact ever pushes back, the fallback is to switch to Wikimedia.
