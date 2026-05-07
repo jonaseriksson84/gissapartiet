@@ -1,17 +1,26 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { fetchMPs, type MP } from '$lib/riksdagen';
-	import { sampleMP } from '$lib/sample';
+	import { onMount, onDestroy } from 'svelte';
+	import { fetchMPs } from '$lib/riksdagen';
 	import type { Party } from '$lib/riksdagen';
+	import { sampleMP } from '$lib/sample';
+	import { gameReducer, INITIAL_STATE, DWELL_MS } from '$lib/game-state';
 	import { Card } from '$lib/components/ui/card';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import AnswerButtons from '$lib/components/AnswerButtons.svelte';
 
-	let status = $state<'loading' | 'ready' | 'error'>('loading');
+	const PARTY_NAMES: Record<Party, string> = {
+		S: 'Socialdemokraterna', M: 'Moderaterna', SD: 'Sverigedemokraterna',
+		V: 'Vänsterpartiet', C: 'Centerpartiet', KD: 'Kristdemokraterna',
+		MP: 'Miljöpartiet', L: 'Liberalerna', 'Partilös': 'Partilös'
+	};
+
+	let loadStatus = $state<'loading' | 'ready' | 'error'>('loading');
 	let statusMessage = $state('Laddar ledamöter…');
-	let mps = $state<MP[]>([]);
-	let currentMP = $state<MP | null>(null);
-	let sessionId = $state('');
+	let mps = $state<Awaited<ReturnType<typeof fetchMPs>>>([]);
+	let gs = $state(INITIAL_STATE);
+	let sessionId = '';
+	let dwellTimer: ReturnType<typeof setTimeout> | null = null;
+	let revealKey = $state(0);
 
 	onMount(async () => {
 		sessionId = sessionStorage.getItem('session_id') ?? (() => {
@@ -24,36 +33,42 @@
 			const loaded = await fetchMPs();
 			mps = loaded;
 			const { mp } = sampleMP(mps);
-			currentMP = mp;
+			gs = gameReducer(gs, { type: 'init', mp });
 			statusMessage = `${mps.length} ledamöter inlästa`;
-			status = 'ready';
+			loadStatus = 'ready';
 		} catch {
 			statusMessage = 'Kunde inte ladda ledamöter.';
-			status = 'error';
+			loadStatus = 'error';
 		}
 	});
 
-	async function handleGuess(guessedParty: Party) {
-		if (!currentMP || status !== 'ready') return;
+	onDestroy(() => {
+		if (dwellTimer) clearTimeout(dwellTimer);
+	});
 
-		const correctParty = currentMP.party;
-		const payload = {
-			session_id: sessionId,
-			mp_id: currentMP.id,
-			guessed_party_id: guessedParty,
-			correct_party_id: correctParty
-		};
+	function handleGuess(guessedParty: Party) {
+		if (gs.phase !== 'idle' || !gs.currentMP) return;
 
-		// Fire-and-forget; reveal/score added in the next slice
+		const correctParty = gs.currentMP.party;
+		gs = gameReducer(gs, { type: 'guess', guessedParty, correctParty });
+		revealKey++;
+
 		fetch('/api/event', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload)
+			body: JSON.stringify({
+				session_id: sessionId,
+				mp_id: gs.currentMP!.id,
+				guessed_party_id: guessedParty,
+				correct_party_id: correctParty
+			})
 		}).catch(() => {});
 
-		// Advance to next MP immediately (reveal overlay comes in #6)
-		const { mp } = sampleMP(mps);
-		currentMP = mp;
+		const { mp: nextMP } = sampleMP(mps);
+		dwellTimer = setTimeout(() => {
+			gs = gameReducer(gs, { type: 'advance', mp: nextMP });
+			dwellTimer = null;
+		}, DWELL_MS);
 	}
 </script>
 
@@ -65,22 +80,47 @@
 	<p class="text-muted-foreground text-sm">{statusMessage}</p>
 
 	<div class="w-full max-w-xs">
-		{#if status === 'loading'}
+		{#if loadStatus === 'loading'}
 			<Card class="overflow-hidden">
 				<Skeleton class="aspect-[3/4] w-full rounded-none" />
 			</Card>
-		{:else if status === 'ready' && currentMP}
-			<Card class="overflow-hidden">
+		{:else if loadStatus === 'ready' && gs.currentMP}
+			<Card class="overflow-hidden relative">
 				<img
-					src={currentMP.photoUrl}
+					src={gs.currentMP.photoUrl}
 					alt=""
-					class="aspect-[3/4] w-full object-cover object-top"
+					class="aspect-[3/4] w-full object-cover object-top block"
 				/>
+
+				{#if gs.phase === 'revealing'}
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none">
+						<div class="absolute bottom-6 left-4 text-white">
+							<p class="font-semibold text-lg leading-tight">
+								{gs.currentMP.firstName} {gs.currentMP.lastName}
+							</p>
+							<p class="text-sm opacity-90">
+								{gs.correctParty ? PARTY_NAMES[gs.correctParty] : ''}
+							</p>
+						</div>
+					</div>
+
+					{#key revealKey}
+						<div
+							class="absolute bottom-0 left-0 h-1 bg-white"
+							style="animation: timerDeplete {DWELL_MS}ms linear forwards"
+						></div>
+					{/key}
+				{/if}
 			</Card>
 		{/if}
 	</div>
 
-	{#if status === 'ready'}
-		<AnswerButtons onGuess={handleGuess} />
+	{#if loadStatus === 'ready'}
+		<AnswerButtons
+			onGuess={handleGuess}
+			phase={gs.phase}
+			guessedParty={gs.guessedParty}
+			correctParty={gs.correctParty}
+		/>
 	{/if}
 </main>
