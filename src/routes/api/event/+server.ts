@@ -1,7 +1,10 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { createRateLimiter, type RateLimiter } from '$lib/server/rate-limit';
 
 const VALID_PARTIES = new Set(['S', 'M', 'SD', 'V', 'C', 'KD', 'MP', 'L', 'Partilös']);
+
+const defaultLimiter = createRateLimiter({ maxRequests: 10, windowMs: 10_000 });
 
 interface EventPayload {
 	session_id: string;
@@ -21,23 +24,32 @@ function isValidPayload(body: unknown): body is EventPayload {
 	);
 }
 
-export const POST: RequestHandler = async ({ request, platform }) => {
-	const body: unknown = await request.json();
+export function createPostHandler(limiter: RateLimiter = defaultLimiter): RequestHandler {
+	return async ({ request, platform }) => {
+		const body: unknown = await request.json();
 
-	if (!isValidPayload(body)) {
-		return json({ error: 'Invalid payload' }, { status: 400 });
-	}
+		if (!isValidPayload(body)) {
+			return json({ error: 'Invalid payload' }, { status: 400 });
+		}
 
-	const { session_id, mp_id, guessed_party_id, correct_party_id } = body;
-	const was_correct = guessed_party_id === correct_party_id ? 1 : 0;
-	const created_at = new Date().toISOString();
+		const { session_id, mp_id, guessed_party_id, correct_party_id } = body;
 
-	await platform!.env.DB.prepare(
-		`INSERT INTO events (session_id, mp_id, guessed_party_id, correct_party_id, was_correct, created_at)
-		 VALUES (?, ?, ?, ?, ?, ?)`
-	)
-		.bind(session_id, mp_id, guessed_party_id, correct_party_id, was_correct, created_at)
-		.run();
+		if (!limiter.isAllowed(session_id)) {
+			return json({ error: 'Too many requests' }, { status: 429 });
+		}
 
-	return json({ ok: true });
-};
+		const was_correct = guessed_party_id === correct_party_id ? 1 : 0;
+		const created_at = new Date().toISOString();
+
+		await platform!.env.DB.prepare(
+			`INSERT INTO events (session_id, mp_id, guessed_party_id, correct_party_id, was_correct, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?)`
+		)
+			.bind(session_id, mp_id, guessed_party_id, correct_party_id, was_correct, created_at)
+			.run();
+
+		return json({ ok: true });
+	};
+}
+
+export const POST = createPostHandler();

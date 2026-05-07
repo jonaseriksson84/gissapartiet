@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { POST } from './+server';
+import { createPostHandler } from './+server';
+import { createRateLimiter } from '$lib/server/rate-limit';
 
 function makeMockDB() {
 	const rows: Record<string, unknown>[] = [];
@@ -41,8 +42,14 @@ const validPayload = {
 	correct_party_id: 'S'
 };
 
+function makeUnlimitedPost() {
+	const limiter = createRateLimiter({ maxRequests: 1000, windowMs: 60_000 });
+	return createPostHandler(limiter);
+}
+
 describe('POST /api/event', () => {
 	it('inserts a row on valid payload and returns ok', async () => {
+		const POST = makeUnlimitedPost();
 		const db = makeMockDB();
 		const response = await POST({
 			request: makeRequest(validPayload),
@@ -63,6 +70,7 @@ describe('POST /api/event', () => {
 	});
 
 	it('sets was_correct to 0 when guess is wrong', async () => {
+		const POST = makeUnlimitedPost();
 		const db = makeMockDB();
 		await POST({
 			request: makeRequest({ ...validPayload, guessed_party_id: 'M', correct_party_id: 'S' }),
@@ -73,6 +81,7 @@ describe('POST /api/event', () => {
 	});
 
 	it('accepts Partilös as a valid party', async () => {
+		const POST = makeUnlimitedPost();
 		const db = makeMockDB();
 		const response = await POST({
 			request: makeRequest({ ...validPayload, guessed_party_id: 'Partilös', correct_party_id: 'Partilös' }),
@@ -84,6 +93,7 @@ describe('POST /api/event', () => {
 	});
 
 	it('returns 400 on missing field', async () => {
+		const POST = makeUnlimitedPost();
 		const db = makeMockDB();
 		const { mp_id: _, ...without_mp } = validPayload;
 		const response = await POST({
@@ -96,6 +106,7 @@ describe('POST /api/event', () => {
 	});
 
 	it('returns 400 on invalid party', async () => {
+		const POST = makeUnlimitedPost();
 		const db = makeMockDB();
 		const response = await POST({
 			request: makeRequest({ ...validPayload, guessed_party_id: 'INVALID' }),
@@ -103,5 +114,44 @@ describe('POST /api/event', () => {
 		} as Parameters<typeof POST>[0]);
 
 		expect(response.status).toBe(400);
+	});
+
+	it('returns 429 when the session exceeds the rate limit', async () => {
+		let now = 1000;
+		const limiter = createRateLimiter({ maxRequests: 3, windowMs: 10_000, clock: () => now });
+		const POST = createPostHandler(limiter);
+		const db = makeMockDB();
+
+		const call = () => POST({
+			request: makeRequest(validPayload),
+			platform: makePlatform(db)
+		} as Parameters<typeof POST>[0]);
+
+		expect((await call()).status).toBe(200);
+		expect((await call()).status).toBe(200);
+		expect((await call()).status).toBe(200);
+		const over = await call();
+		expect(over.status).toBe(429);
+		expect(await over.json()).toEqual({ error: 'Too many requests' });
+		expect(db.getRows()).toHaveLength(3);
+	});
+
+	it('allows requests again after the rate-limit window resets', async () => {
+		let now = 1000;
+		const limiter = createRateLimiter({ maxRequests: 2, windowMs: 5_000, clock: () => now });
+		const POST = createPostHandler(limiter);
+		const db = makeMockDB();
+
+		const call = () => POST({
+			request: makeRequest(validPayload),
+			platform: makePlatform(db)
+		} as Parameters<typeof POST>[0]);
+
+		await call();
+		await call();
+		expect((await call()).status).toBe(429);
+
+		now = 6001;
+		expect((await call()).status).toBe(200);
 	});
 });
