@@ -22,9 +22,10 @@ await run({
   promptFile: "./.sandcastle/prompt.md",
 
   // Maximum number of iterations (agent invocations) to run in a session.
-  // Each iteration works on a single issue. Increase this to process more issues
-  // per run, or set it to 1 for a single-shot mode.
-  maxIterations: 3,
+  // Each iteration works on a single issue. The loop also exits early when the
+  // agent emits <promise>COMPLETE</promise> (no unblocked ready-for-agent issues
+  // left), so this is just a safety cap. Set it higher than the queue depth.
+  maxIterations: 20,
 
   // Branch strategy — merge-to-head creates a temporary branch for the agent
   // to work on, then merges the result back to HEAD when the run completes.
