@@ -21,13 +21,16 @@ Before picking an issue, read these to understand the project's conventions and 
 
 # Task
 
-You are an autonomous coding agent working through `ready-for-agent` GitHub issues one at a time.
+You are an autonomous coding agent. Each invocation of you handles **EXACTLY ONE GitHub issue** — no more, no less. After you finish that one issue, your turn ends. A fresh agent (with a clean context) will be invoked next time to handle the next issue. This Ralph-loop discipline is the whole point of the harness — do not chain issues within one session.
 
 ## Pick the next issue
 
 From the `ready-for-agent` list above, pick the **lowest-numbered** issue that is **not blocked**. An issue is blocked if its body contains a `Blocked by #N` line where issue #N is still open.
 
-If every `ready-for-agent` issue is blocked or there are none, output `<promise>COMPLETE</promise>` and stop.
+**Two terminal cases — read carefully:**
+
+- If, RIGHT NOW at the start of your session, every `ready-for-agent` issue is blocked or the list is empty: output `<promise>COMPLETE</promise>` and stop. This signals to the harness that the entire run is done.
+- If you successfully complete one issue: stop without emitting `<promise>COMPLETE</promise>`. Just end your output. Do **not** look at the queue again, do **not** pick another issue, do **not** start exploring the next one. The harness will spawn a fresh agent for the next issue.
 
 ## Workflow
 
@@ -65,13 +68,13 @@ If every `ready-for-agent` issue is blocked or there are none, output `<promise>
 
 - Use **npm**, not pnpm or yarn.
 - Install new packages at `@latest` — don't pin to older versions.
-- Work on **one issue per iteration**.
+- **One issue per session — full stop.** After step 6 you end your output. The next iteration will see the now-closed issue and pick the next one with a clean context. If you keep going inside the same session, you defeat the entire purpose of the harness.
 - Don't leave commented-out code or `TODO` comments in committed code.
 - Don't add error handling, fallbacks, or validation for scenarios that can't happen — trust internal code and framework guarantees.
-- If blocked (missing context, env issue, failing tests you can't fix, external dependency you don't control), leave a comment on the issue explaining the blocker and move on. **Do not** close the issue.
+- If blocked (missing context, env issue, failing tests you can't fix, external dependency you don't control): leave a comment on the issue explaining the blocker, **swap the label** from `ready-for-agent` to `ready-for-human` so the next iteration doesn't re-pick the same issue, and stop. Do **not** close the issue and do **not** emit `<promise>COMPLETE</promise>`.
 
 # Done
 
-When there are no unblocked `ready-for-agent` issues, output:
-
-<promise>COMPLETE</promise>
+- Queue empty / everything blocked at session start → emit `<promise>COMPLETE</promise>` and stop the run.
+- Single issue completed and closed → stop your output. No `<promise>COMPLETE</promise>`.
+- Hit a blocker on the chosen issue → leave a comment, stop your output. No `<promise>COMPLETE</promise>`.
