@@ -25,8 +25,7 @@
 	<title>Gissa partiet</title>
 </svelte:head>
 
-<main class="min-h-svh flex flex-col items-center justify-center px-4 py-8">
-	<h1 class="text-4xl font-semibold tracking-tight mb-2">Gissa partiet</h1>
+<main class="flex flex-col items-center justify-center px-4 py-8">
 	<p class="text-muted-foreground text-sm mb-8">{statusMessage}</p>
 
 	<div class="w-full max-w-xs">
