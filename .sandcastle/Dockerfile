@@ -33,6 +33,13 @@ RUN curl -fsSL https://claude.ai/install.sh | bash
 # Add Claude to PATH
 ENV PATH="/home/agent/.local/bin:$PATH"
 
+# Re-apply the world-writable chmod after the claude installer creates ~/.claude/
+# and ~/.claude.json with default-restrictive perms. Per sandcastle issue #502.
+# https://github.com/mattpocock/sandcastle/issues/502
+USER root
+RUN chmod -R a+rwX /home/agent
+USER agent
+
 WORKDIR /home/agent
 
 # In worktree sandbox mode, Sandcastle bind-mounts the git worktree at /home/agent/workspace
