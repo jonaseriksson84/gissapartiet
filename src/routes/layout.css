@@ -116,6 +116,11 @@
 	--radius-4xl: calc(var(--radius) * 2.6);
 }
 
+@keyframes timerDeplete {
+	from { width: 100%; }
+	to { width: 0%; }
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
