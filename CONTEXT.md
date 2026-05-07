@@ -6,8 +6,10 @@ A Swedish-language clone of [guesstheparty.co.uk](https://guesstheparty.co.uk) f
 
 - **Frontend** fetches MP list and photos directly from `data.riksdagen.se`. No backend mirror of Riksdag data; the source is hit live (with browser-level caching).
 - **Backend** is a thin events store: receives anonymous guess events from the frontend, stores them, serves aggregations to the stats page. Doesn't know MP names/photos — only opaque `mp_id`s. The frontend joins backend counts with Riksdag MP details at render time.
-- **Stack**: SvelteKit on Cloudflare Workers via `@sveltejs/adapter-cloudflare`; D1 (SQLite) for the events table; SvelteKit `+server.ts` for `/api/event` and `/api/stats`; Tailwind for styling. See [ADR-0005](docs/adr/0005-sveltekit-over-astro.md) for why SvelteKit over Astro.
+- **Stack**: SvelteKit on Cloudflare Workers via `@sveltejs/adapter-cloudflare`; D1 (SQLite) for the events table; SvelteKit `+server.ts` for `/api/event` and `/api/stats`; Tailwind for styling; `shadcn-svelte` for as many UI primitives as possible — Button, Card, Tooltip, Badge, Table, Skeleton, Switch (dark-mode toggle), Separator, and any others where a primitive applies. Bespoke styling sits on top of shadcn primitives, not next to them. See [ADR-0005](docs/adr/0005-sveltekit-over-astro.md) for SvelteKit over Astro and [ADR-0006](docs/adr/0006-shadcn-svelte.md) for shadcn-svelte adoption.
 - **Domain**: `gissapartiet.se` (already owned).
+- **Package versions**: install everything at `@latest`. Don't pin to older "stable" versions when newer ones exist.
+- **Dark mode**: required from v1. Toggle + `prefers-color-scheme` respected. Tailwind's `dark:` variant + shadcn-svelte's CSS-variables theming carries this for free.
 
 ## Resolved defaults
 
