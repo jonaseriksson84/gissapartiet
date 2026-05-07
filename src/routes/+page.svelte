@@ -4,6 +4,8 @@
 	import type { Party } from '$lib/riksdagen';
 	import { sampleMP } from '$lib/sample';
 	import { gameReducer, INITIAL_STATE, DWELL_MS } from '$lib/game-state';
+	import { readStats, writeStats } from '$lib/storage';
+	import { playerStats } from '$lib/player-stats';
 	import { Card } from '$lib/components/ui/card';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import AnswerButtons from '$lib/components/AnswerButtons.svelte';
@@ -29,6 +31,10 @@
 			return id;
 		})();
 
+		const saved = readStats(localStorage);
+		gs = gameReducer(gs, { type: 'load-stats', stats: saved });
+		playerStats.set(gs.stats);
+
 		try {
 			const loaded = await fetchMPs();
 			mps = loaded;
@@ -51,6 +57,8 @@
 
 		const correctParty = gs.currentMP.party;
 		gs = gameReducer(gs, { type: 'guess', guessedParty, correctParty });
+		playerStats.set(gs.stats);
+		writeStats(gs.stats, localStorage);
 		revealKey++;
 
 		fetch('/api/event', {

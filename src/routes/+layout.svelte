@@ -2,6 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import DarkModeToggle from '$lib/components/DarkModeToggle.svelte';
+	import { playerStats } from '$lib/player-stats';
 
 	let { children } = $props();
 </script>
@@ -9,9 +10,27 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div class="min-h-svh flex flex-col">
-	<header class="border-b border-border px-4 py-3 flex items-center justify-between">
-		<a href="/" class="font-semibold tracking-tight hover:text-foreground/80 transition-colors">Gissa partiet</a>
-		<div class="flex items-center gap-4">
+	<header class="border-b border-border px-4 py-3 flex items-center justify-between gap-3">
+		<a href="/" class="font-semibold tracking-tight hover:text-foreground/80 transition-colors shrink-0">Gissa partiet</a>
+
+		<div class="flex items-center gap-3 text-sm tabular-nums">
+			<span class="flex flex-col items-center leading-tight">
+				<span class="font-semibold">{$playerStats.correct}/{$playerStats.total}</span>
+				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rätt</span>
+			</span>
+			<span class="text-border">|</span>
+			<span class="flex flex-col items-center leading-tight">
+				<span class="font-semibold">{$playerStats.streak}</span>
+				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rad</span>
+			</span>
+			<span class="text-border">|</span>
+			<span class="flex flex-col items-center leading-tight">
+				<span class="font-semibold">{$playerStats.best}</span>
+				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Bäst</span>
+			</span>
+		</div>
+
+		<div class="flex items-center gap-4 shrink-0">
 			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
 			<DarkModeToggle />
 		</div>
