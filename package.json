@@ -1,0 +1,16 @@
+{
+  "name": "gissapartiet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "sandcastle": "tsx .sandcastle/main.mts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ai-hero/sandcastle": "^0.5.8",
+    "tsx": "^4.21.0"
+  }
+}
