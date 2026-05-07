@@ -1,0 +1,18 @@
+name = "gissapartiet"
+main = ".svelte-kit/cloudflare/_worker.js"
+compatibility_date = "2026-05-07"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+routes = [
+  { pattern = "gissapartiet.se", custom_domain = true }
+]
+
+[assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "gissapartiet"
+database_id = "b697d3fb-fba6-417f-85a2-831523270baa"

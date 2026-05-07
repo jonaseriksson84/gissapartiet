@@ -1,34 +1,26 @@
-# Dependencies
-node_modules/
-.pnpm-store/
-pnpm-debug.log*
+node_modules
 
-# SvelteKit
-.svelte-kit/
-build/
-package/
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
 
-# Vite
-*.timestamp-*
+# OS
+.DS_Store
+Thumbs.db
 
-# Environment
+# Env
 .env
 .env.*
 !.env.example
+!.env.test
 
-# Cloudflare / Wrangler
-.wrangler/
-.dev.vars
-.dev.vars.local
-
-# Editor
-.vscode/
-.idea/
-*.swp
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
 
 # Tooling artifacts
 .playwright-cli/
-
-# macOS / Windows
-.DS_Store
-Thumbs.db
