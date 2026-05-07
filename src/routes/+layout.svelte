@@ -10,8 +10,11 @@
 
 <div class="min-h-svh flex flex-col">
 	<header class="border-b border-border px-4 py-3 flex items-center justify-between">
-		<span class="font-semibold tracking-tight">Gissa partiet</span>
-		<DarkModeToggle />
+		<a href="/" class="font-semibold tracking-tight hover:text-foreground/80 transition-colors">Gissa partiet</a>
+		<div class="flex items-center gap-4">
+			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
+			<DarkModeToggle />
+		</div>
 	</header>
 
 	<div class="flex-1">
