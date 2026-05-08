@@ -6,6 +6,6 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	test: {
 		environment: 'node',
-		exclude: ['node_modules', '.sandcastle', 'dist', '.svelte-kit', 'build']
+		exclude: ['node_modules', '.sandcastle', 'dist', '.svelte-kit', 'build', 'e2e']
 	}
 });
