@@ -117,7 +117,11 @@
 </svelte:head>
 
 <main class="flex flex-col items-center justify-center px-4 py-8 gap-6">
-	<p class="text-muted-foreground text-sm">{statusMessage}</p>
+	{#if loadStatus !== 'ready'}
+		<p class="text-muted-foreground text-sm" class:text-destructive={loadStatus === 'error'}>
+			{statusMessage}
+		</p>
+	{/if}
 
 	<div class="w-full max-w-xs">
 		{#if loadStatus === 'loading'}

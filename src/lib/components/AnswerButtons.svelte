@@ -41,7 +41,7 @@
 </script>
 
 <TooltipProvider>
-	<div class="flex flex-wrap justify-center gap-2" role="group" aria-label="Gissa parti">
+	<div class="flex flex-wrap justify-center gap-2 max-w-[252px] mx-auto sm:max-w-none" role="group" aria-label="Gissa parti">
 		{#each parties as { id, name }}
 			{@const isCorrect = isRevealing && correctParty === id}
 			{@const isWrong = isRevealing && guessedParty === id && guessedParty !== correctParty}

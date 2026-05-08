@@ -27,7 +27,8 @@ test('preloads next MP photo during reveal only', async ({ page }) => {
 	);
 
 	await page.goto('/');
-	await expect(page.getByText(/8 ledamöter inlästa/)).toBeVisible();
+	// Wait for the page to render the photo + answer buttons (load complete)
+	await expect(page.locator('main img[alt=""]').first()).toBeVisible();
 
 	// No preload before first guess
 	await expect(page.locator('link[rel="preload"][as="image"]')).not.toBeAttached();
@@ -55,7 +56,8 @@ test('happy-path round flow', async ({ page }) => {
 	await page.goto('/');
 
 	// Wait for MPs to load
-	await expect(page.getByText(/8 ledamöter inlästa/)).toBeVisible();
+	// Wait for the page to render the photo + answer buttons (load complete)
+	await expect(page.locator('main img[alt=""]').first()).toBeVisible();
 
 	// Photo card is visible
 	await expect(page.locator('main img[alt=""]').first()).toBeVisible();

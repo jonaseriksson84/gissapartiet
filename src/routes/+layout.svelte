@@ -24,22 +24,32 @@
 			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
 		</div>
 
-		<div class="order-last w-full flex justify-center items-center gap-3 text-sm tabular-nums sm:order-none sm:w-auto">
-			<span class="flex flex-col items-center leading-tight">
-				<span class="font-semibold">{$playerStats.correct}/{$playerStats.total}</span>
-				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rätt</span>
-			</span>
-			<span class="text-border">|</span>
-			<span class="flex flex-col items-center leading-tight">
-				<span class="font-semibold">{$playerStats.streak}</span>
-				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rad</span>
-			</span>
-			<span class="text-border">|</span>
-			<span class="flex flex-col items-center leading-tight">
-				<span class="font-semibold">{$playerStats.best}</span>
-				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Bäst</span>
-			</span>
-			<Button variant="ghost" size="sm" onclick={handleReset} class="text-muted-foreground text-xs px-2">
+		<div class="order-last w-full grid grid-cols-[1fr_auto_1fr] items-center text-sm tabular-nums sm:order-none sm:w-auto sm:flex sm:gap-3">
+			<div class="hidden sm:block"></div>
+
+			<div class="flex items-center gap-3 justify-self-center sm:justify-self-auto sm:contents">
+				<span class="flex flex-col items-center leading-tight">
+					<span class="font-semibold">{$playerStats.correct}/{$playerStats.total}</span>
+					<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rätt</span>
+				</span>
+				<span class="text-border">|</span>
+				<span class="flex flex-col items-center leading-tight">
+					<span class="font-semibold">{$playerStats.streak}</span>
+					<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rad</span>
+				</span>
+				<span class="text-border">|</span>
+				<span class="flex flex-col items-center leading-tight">
+					<span class="font-semibold">{$playerStats.best}</span>
+					<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Bäst</span>
+				</span>
+			</div>
+
+			<Button
+				variant="ghost"
+				size="sm"
+				onclick={handleReset}
+				class="text-muted-foreground text-xs px-2 justify-self-end sm:justify-self-auto"
+			>
 				Återställ
 			</Button>
 		</div>
