@@ -1,42 +1,52 @@
-# sv
+# Gissa partiet
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A Swedish face-recognition game: guess which Riksdag party a member of parliament belongs to, based on their photo. Modelled on [guesstheparty.co.uk](https://guesstheparty.co.uk).
 
-## Creating a project
+**Stack**: SvelteKit · Cloudflare Workers · D1 (SQLite) · Tailwind · shadcn-svelte
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
+## Getting started
 
 ```sh
-# recreate this project
-npx sv@0.15.2 create --template minimal --types ts --install npm .
+npm install
+npm run db:migrate:local   # apply migrations to the local D1 database
+npm run dev
 ```
+
+Then open `http://localhost:5173`.
+
+## Database
+
+Migrations live in `migrations/`. They are applied using Cloudflare's official D1 migration tooling, which tracks applied migrations in a `d1_migrations` table so re-runs are safe.
+
+| Script | What it does |
+|---|---|
+| `npm run db:migrate:local` | Apply pending migrations to the local `.wrangler/` D1 database used by `npm run dev` |
+| `npm run db:migrate` | Apply pending migrations to the **remote** (production) D1 database |
+
+### First-time setup
+
+After cloning, run `npm run db:migrate:local` once before `npm run dev`. Without this, `/stats` and `POST /api/event` will 500 with `no such table: events`.
+
+### Adding a migration
+
+Create a new numbered SQL file in `migrations/` (e.g. `0002_add_column.sql`) and run `npm run db:migrate:local`. Wrangler records which migrations have been applied and skips already-applied ones.
+
+### Production migrations
+
+Run `npm run db:migrate` from a machine with valid Cloudflare credentials (the `CLOUDFLARE_API_TOKEN` environment variable, or a `wrangler login` session). This is a manual step; automated deployment-time migration is tracked in a follow-up issue.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm run dev          # start the dev server (http://localhost:5173)
+npm test             # run unit tests (Vitest)
+npm run typecheck    # TypeScript + Svelte type checks
 ```
 
 ## Building
 
-To create a production version of your app:
-
 ```sh
-npm run build
+npm run build        # build for Cloudflare Workers
 ```
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The app uses `@sveltejs/adapter-cloudflare`. Deploy with `wrangler deploy` after building.

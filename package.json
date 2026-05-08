@@ -12,7 +12,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "vitest run",
 		"typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"sandcastle": "tsx .sandcastle/main.mts"
+		"sandcastle": "tsx .sandcastle/main.mts",
+		"db:migrate:local": "wrangler d1 migrations apply gissapartiet --local",
+		"db:migrate": "wrangler d1 migrations apply gissapartiet --remote"
 	},
 	"devDependencies": {
 		"@ai-hero/sandcastle": "^0.5.8",
