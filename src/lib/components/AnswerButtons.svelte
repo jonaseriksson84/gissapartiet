@@ -33,11 +33,25 @@
 	const isRevealing = $derived(phase === 'revealing');
 
 	let prefersReducedMotion = $state(false);
+	let canHover = $state(false);
 	onMount(() => {
-		const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-		prefersReducedMotion = mq.matches;
-		mq.addEventListener('change', (e) => { prefersReducedMotion = e.matches; });
+		const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+		prefersReducedMotion = motionMq.matches;
+		motionMq.addEventListener('change', (e) => { prefersReducedMotion = e.matches; });
+
+		// Tooltips are hover-only; on touch devices a tap opens them with no
+		// clean way to dismiss, so we skip the Tooltip wrapper entirely there.
+		const hoverMq = window.matchMedia('(hover: hover) and (pointer: fine)');
+		canHover = hoverMq.matches;
+		hoverMq.addEventListener('change', (e) => { canHover = e.matches; });
 	});
+
+	const buttonClass =
+		'rounded-full transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring p-0 border-0 bg-transparent';
+	const buttonStateClass = (revealing: boolean) =>
+		revealing
+			? 'opacity-40 cursor-not-allowed pointer-events-none'
+			: 'hover:opacity-90 active:opacity-75 cursor-pointer motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out motion-safe:hover:scale-110 motion-safe:active:scale-95';
 </script>
 
 <TooltipProvider>
@@ -46,17 +60,29 @@
 			{@const isCorrect = isRevealing && correctParty === id}
 			{@const isWrong = isRevealing && guessedParty === id && guessedParty !== correctParty}
 			<div class="relative">
-				<Tooltip>
-					<TooltipTrigger
+				{#if canHover}
+					<Tooltip>
+						<TooltipTrigger
+							onclick={() => !isRevealing && onGuess(id)}
+							class="{buttonClass} {buttonStateClass(isRevealing)}"
+							aria-label={name}
+							aria-disabled={isRevealing}
+						>
+							<PartySymbol party={id} />
+						</TooltipTrigger>
+						<TooltipContent>{name}</TooltipContent>
+					</Tooltip>
+				{:else}
+					<button
+						type="button"
 						onclick={() => !isRevealing && onGuess(id)}
-						class="rounded-full transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring p-0 border-0 bg-transparent {isRevealing ? 'opacity-40 cursor-not-allowed pointer-events-none' : 'hover:opacity-90 active:opacity-75 cursor-pointer motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out motion-safe:hover:scale-110 motion-safe:active:scale-95'}"
+						class="{buttonClass} {buttonStateClass(isRevealing)}"
 						aria-label={name}
 						aria-disabled={isRevealing}
 					>
 						<PartySymbol party={id} />
-					</TooltipTrigger>
-					<TooltipContent>{name}</TooltipContent>
-				</Tooltip>
+					</button>
+				{/if}
 
 				{#if isCorrect}
 					<span
