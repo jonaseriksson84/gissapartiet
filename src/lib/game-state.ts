@@ -3,7 +3,7 @@ import { type PlayerStats, DEFAULT_STATS } from './storage';
 
 export { type PlayerStats, DEFAULT_STATS } from './storage';
 
-export const DWELL_MS = 1500;
+export const DWELL_MS = 3000;
 
 export type Phase = 'idle' | 'revealing';
 
