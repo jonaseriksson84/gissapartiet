@@ -6,8 +6,10 @@ test('stats page renders all sections with seeded data', async ({ page }) => {
 	// Page heading
 	await expect(page.getByRole('heading', { name: 'Statistik' })).toBeVisible();
 
-	// Counters are non-zero: seed has 8 parties × 2 MPs × 20 events = 320 votes
-	await expect(page.getByText('320')).toBeVisible();
+	// Counters are non-zero: seed has 8 parties × 2 MPs × 20 events = 320 votes.
+	// "320" appears twice (one session per event in the fixture → Röster=Sessioner=320),
+	// hence .first() — same pattern as the other multi-match assertions below.
+	await expect(page.getByText('320').first()).toBeVisible();
 
 	// Accuracy table is populated: S party has 40 total events (2 MPs × 20)
 	await expect(page.getByRole('heading', { name: 'Träffsäkerhet per parti' })).toBeVisible();
@@ -32,5 +34,6 @@ test('stats page renders all sections with seeded data', async ({ page }) => {
 		page.getByRole('heading', { name: 'Verkar tillhöra ett annat parti' })
 	).toBeVisible();
 	// test_S_2 has 15 wrong guesses as M → top entry in M's misidentification list
-	await expect(page.getByText('15×')).toBeVisible();
+	// (8 parties × symmetric mistakes → 15× appears in every party's list, hence .first())
+	await expect(page.getByText('15×').first()).toBeVisible();
 });

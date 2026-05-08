@@ -8,7 +8,7 @@ import {
 	hardestPerParty,
 	type MpAccuracyEntry
 } from '$lib/server/aggregations';
-import { fetchMPs } from '$lib/riksdagen';
+import { fetchMPs, type MP } from '$lib/riksdagen';
 
 export const load: PageServerLoad = async ({ platform, fetch }) => {
 	const db = platform!.env.DB;
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ platform, fetch }) => {
 		misidentificationByParty(db),
 		easiestPerParty(db),
 		hardestPerParty(db),
-		fetchMPs(fetch)
+		fetchMPs(fetch).catch((): MP[] => [])
 	]);
 
 	const mpMap = new Map(mps.map((mp) => [mp.id, mp]));
