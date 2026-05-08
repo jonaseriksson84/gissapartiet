@@ -45,21 +45,30 @@ From the `ready-for-agent` list above, pick the **lowest-numbered** issue that i
    - Refactor if needed
    - Repeat until every acceptance-criterion checkbox is covered
 
-4. **Verify.** Before committing, run every test/check script that exists in `package.json` and is relevant to the issue:
-   - `npm run typecheck`
-   - `npm test`
-   - `npm run test:e2e` if the issue touches the user-facing flow or the e2e suite
-   - `npm run lint`
+4. **Verify.** Before committing, run the relevant scripts from `package.json`:
+   - `npm run typecheck` — always
+   - `npm test` — always
+   - `npm run test:e2e` — **only if the issue is specifically about Playwright tests** (i.e. you added/modified files in `e2e/`). Skip otherwise.
+
+   There is **no lint script** in this project — don't run `npm run lint`.
 
    Fix any failures. Don't commit broken code.
 
-   **If a verification suite cannot run in your sandbox** (e.g. Playwright needs browser libraries you can't install, a native binary won't load on this CPU arch, an external service is unreachable), this is **not** a green light to ship. You must:
+   ## Known sandbox limitations — do not waste cycles on these
 
-   - Comment on the issue with the *exact* command that failed and the *exact* error message
-   - Swap the label `ready-for-agent` → `ready-for-human`
-   - Stop the iteration without closing the issue and without committing test code that hasn't been executed
+   These environment constraints are inherent to the docker container and **cannot be fixed by an agent**. Recognise the symptoms and skip the workaround attempts:
 
-   Do **not** ship code claiming "verified by curl / unit tests / inspection" when the suite the issue actually requires (e.g. Playwright for an E2E ticket) has never been run. That is a regression-shipping mistake the harness considers a hard failure.
+   - **Playwright / E2E tests cannot run.** Chromium fails with `libnspr4.so: cannot open shared object file`. `apt-get` and `sudo` are unavailable, so the system library cannot be installed. **Do not** try `npx playwright install --with-deps`, `apt-get install`, swapping the executable, etc. — they all fail. Just don't run `test:e2e` unless the issue is specifically about modifying E2E test code (see below).
+   - **`better-sqlite3` unit tests fail** with `invalid ELF header`. The native binary is built for the host's architecture and won't load on the sandbox's. The `aggregations.test.ts` failures from this are pre-existing and unrelated to your change. Run `npm test`; ignore better-sqlite3 errors as long as the *non-native* test files pass.
+
+   ## When `test:e2e` is required
+
+   Some issues genuinely require running Playwright (e.g. "fix a failing E2E test", "add coverage for X"). For those:
+
+   - Try `npm run test:e2e` once. If it fails with the known `libnspr4.so` error: comment on the issue with the exact failure, swap label `ready-for-agent` → `ready-for-human`, and stop. Do not commit untested test code.
+   - If it fails for a *different* reason (real test failure, your bug): fix it normally.
+
+   For all other issues — UI tweaks, backend logic, layout changes, refactors, polish — **do not run `test:e2e` at all**. Trust typecheck + unit tests + your own reading of the diff. The host will run the full E2E suite later. If your change happens to break an E2E test, that's a regression captured later, not something to block the iteration on.
 
 5. **Commit.** A single clean commit (squash WIP commits if any). The message must:
    - Be a clear one-line summary of what changed
