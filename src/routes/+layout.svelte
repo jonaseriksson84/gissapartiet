@@ -19,7 +19,10 @@
 
 <div class="min-h-svh flex flex-col">
 	<header class="border-b border-border px-4 py-3 flex items-center justify-between gap-3">
-		<a href="/" class="font-semibold tracking-tight hover:text-foreground/80 transition-colors shrink-0">Gissa partiet</a>
+		<div class="flex items-center gap-3 shrink-0">
+			<a href="/" class="font-semibold tracking-tight hover:text-foreground/80 transition-colors">Gissa partiet</a>
+			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
+		</div>
 
 		<div class="flex items-center gap-3 text-sm tabular-nums">
 			<span class="flex flex-col items-center leading-tight">
@@ -39,7 +42,6 @@
 		</div>
 
 		<div class="flex items-center gap-2 shrink-0">
-			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
 			<Button variant="ghost" size="sm" onclick={handleReset} class="text-muted-foreground text-xs px-2">
 				Återställ
 			</Button>
