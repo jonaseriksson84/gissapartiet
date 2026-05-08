@@ -48,6 +48,30 @@
 	function partyAccuracy(party: string) {
 		return accuracy.find((r) => r.party === party) ?? null;
 	}
+
+	const matrixMap = new Map(untrack(() => data.matrix).map((c) => [`${c.actual}:${c.guessed}`, c]));
+
+	function matrixCell(actual: string, guessed: string) {
+		return matrixMap.get(`${actual}:${guessed}`) ?? null;
+	}
+
+	const misidentification = untrack(() => data.misidentification);
+
+	function misidentForParty(party: string) {
+		return misidentification.filter((e) => e.guessedParty === party);
+	}
+
+	const PARTY_ABBR: Record<string, string> = {
+		S: 'S',
+		M: 'M',
+		SD: 'SD',
+		V: 'V',
+		C: 'C',
+		KD: 'KD',
+		MP: 'MP',
+		L: 'L',
+		'Partilös': 'P'
+	};
 </script>
 
 <svelte:head>
@@ -129,5 +153,80 @@
 				{/each}
 			</TableBody>
 		</Table>
+	</section>
+
+	<section>
+		<h2 class="text-lg font-semibold mb-3">Förväxlingsmatris</h2>
+		<p class="text-sm text-muted-foreground mb-3">
+			Rader = verkligt parti · Kolumner = gissat parti · Värden = andel av radtotalen
+		</p>
+		<div class="overflow-x-auto">
+			<Table>
+				<TableHeader>
+					<TableRow>
+						<TableHead class="text-xs">↓ verklig / gissad →</TableHead>
+						{#each ALL_PARTIES as col}
+							<TableHead class="text-center text-xs px-1">{PARTY_ABBR[col]}</TableHead>
+						{/each}
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{#each ALL_PARTIES as row}
+						<TableRow>
+							<TableCell class="font-semibold text-xs pr-2">{PARTY_ABBR[row]}</TableCell>
+							{#each ALL_PARTIES as col}
+								{@const cell = matrixCell(row, col)}
+								<TableCell
+									class="text-center text-xs px-1 tabular-nums {row === col
+										? 'bg-green-50 dark:bg-green-950 font-semibold'
+										: ''}"
+								>
+									{cell ? `${cell.pct.toLocaleString('sv-SE', { maximumFractionDigits: 1 })}%` : '—'}
+								</TableCell>
+							{/each}
+						</TableRow>
+					{/each}
+				</TableBody>
+			</Table>
+		</div>
+	</section>
+
+	<section>
+		<h2 class="text-lg font-semibold mb-3">Verkar tillhöra ett annat parti</h2>
+		<p class="text-sm text-muted-foreground mb-4">
+			Ledamöter som oftast förväxlas med varje parti
+		</p>
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+			{#each ALL_PARTIES as party}
+				{@const entries = misidentForParty(party)}
+				<div>
+					<h3 class="text-sm font-semibold mb-2">{PARTY_NAMES[party]}</h3>
+					{#if entries.length > 0}
+						<ul class="space-y-2">
+							{#each entries as entry}
+								<li class="flex items-center gap-2 text-sm">
+									{#if entry.photoUrl}
+										<img
+											src={entry.photoUrl}
+											alt=""
+											class="w-8 h-8 rounded-full object-cover shrink-0"
+										/>
+									{/if}
+									<div class="min-w-0">
+										<span class="font-medium truncate block">{entry.name}</span>
+										<span class="text-muted-foreground text-xs">
+											{PARTY_NAMES[entry.actualParty] ?? entry.actualParty}
+										</span>
+									</div>
+									<span class="ml-auto text-muted-foreground tabular-nums shrink-0"
+										>{entry.count}×</span
+									>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				</div>
+			{/each}
+		</div>
 	</section>
 </main>

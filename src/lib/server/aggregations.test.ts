@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Database from 'better-sqlite3';
-import { liveCounters, accuracyByParty } from './aggregations';
+import { liveCounters, accuracyByParty, confusionMatrix, misidentificationByParty } from './aggregations';
 
 const SCHEMA = `
   CREATE TABLE events (
@@ -161,5 +161,100 @@ describe('accuracyByParty', () => {
 		empty.exec(SCHEMA);
 		const rows = await accuracyByParty(makeD1(empty));
 		expect(rows).toEqual([]);
+	});
+});
+
+describe('confusionMatrix', () => {
+	let d1: D1Database;
+
+	beforeEach(() => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		seed(sqlite, FIXTURE);
+		d1 = makeD1(sqlite);
+	});
+
+	it('returns one cell per (actual, guessed) pair', async () => {
+		const cells = await confusionMatrix(d1);
+		const pairs = cells.map((c) => `${c.actual}:${c.guessed}`).sort();
+		expect(pairs).toEqual(['KD:KD', 'M:M', 'S:M', 'S:S', 'V:M', 'V:V']);
+	});
+
+	it('computes correct percentage for S→S diagonal', async () => {
+		const cells = await confusionMatrix(d1);
+		const cell = cells.find((c) => c.actual === 'S' && c.guessed === 'S')!;
+		expect(cell.count).toBe(2);
+		expect(cell.pct).toBeCloseTo(66.7, 1);
+	});
+
+	it('computes correct percentage for S→M off-diagonal', async () => {
+		const cells = await confusionMatrix(d1);
+		const cell = cells.find((c) => c.actual === 'S' && c.guessed === 'M')!;
+		expect(cell.count).toBe(1);
+		expect(cell.pct).toBeCloseTo(33.3, 1);
+	});
+
+	it('returns 100% for M→M when all guesses correct', async () => {
+		const cells = await confusionMatrix(d1);
+		const cell = cells.find((c) => c.actual === 'M' && c.guessed === 'M')!;
+		expect(cell.pct).toBe(100);
+	});
+
+	it('returns empty array when table is empty', async () => {
+		const empty = new Database(':memory:');
+		empty.exec(SCHEMA);
+		const cells = await confusionMatrix(makeD1(empty));
+		expect(cells).toEqual([]);
+	});
+});
+
+describe('misidentificationByParty', () => {
+	let d1: D1Database;
+
+	beforeEach(() => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		seed(sqlite, FIXTURE);
+		d1 = makeD1(sqlite);
+	});
+
+	it('only includes entries where guessed ≠ actual (was_correct = 0)', async () => {
+		const entries = await misidentificationByParty(d1);
+		for (const e of entries) {
+			expect(e.guessedParty).not.toBe(e.actualParty);
+		}
+	});
+
+	it('returns both wrong-guess groups for party M from fixture', async () => {
+		const entries = await misidentificationByParty(d1);
+		const forM = entries.filter((e) => e.guessedParty === 'M');
+		expect(forM.length).toBe(2);
+		const actualParties = forM.map((e) => e.actualParty).sort();
+		expect(actualParties).toEqual(['S', 'V']);
+	});
+
+	it('limits to top 5 per guessed party', async () => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		const rows: FixtureRow[] = Array.from({ length: 6 }, (_, i) => ({
+			session_id: 's1',
+			mp_id: `mpX${i}`,
+			guessed_party_id: 'M',
+			correct_party_id: 'S',
+			was_correct: 0
+		}));
+		seed(sqlite, rows);
+		const entries = await misidentificationByParty(makeD1(sqlite));
+		expect(entries.filter((e) => e.guessedParty === 'M').length).toBe(5);
+	});
+
+	it('returns empty array when no wrong guesses', async () => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		seed(sqlite, [
+			{ session_id: 's1', mp_id: 'mp1', guessed_party_id: 'S', correct_party_id: 'S', was_correct: 1 }
+		]);
+		const entries = await misidentificationByParty(makeD1(sqlite));
+		expect(entries).toEqual([]);
 	});
 });
