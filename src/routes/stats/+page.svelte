@@ -207,7 +207,7 @@
 		<p class="text-sm text-muted-foreground mb-4">
 			Ledamöter som gissas rätt oftast per parti (minst 15 gissningar)
 		</p>
-		<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+		<div class="grid grid-cols-1 gap-6">
 			{#each ALL_PARTIES as party}
 				{@const entries = easiestForParty(party)}
 				<div>
@@ -243,7 +243,7 @@
 		<p class="text-sm text-muted-foreground mb-4">
 			Ledamöter som gissas rätt minst per parti (minst 15 gissningar)
 		</p>
-		<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+		<div class="grid grid-cols-1 gap-6">
 			{#each ALL_PARTIES as party}
 				{@const entries = hardestForParty(party)}
 				<div>
@@ -279,7 +279,7 @@
 		<p class="text-sm text-muted-foreground mb-4">
 			Ledamöter som oftast förväxlas med varje parti
 		</p>
-		<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+		<div class="grid grid-cols-1 gap-6">
 			{#each ALL_PARTIES as party}
 				{@const entries = misidentForParty(party)}
 				<div>
