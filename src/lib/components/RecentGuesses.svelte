@@ -36,7 +36,10 @@
 							{/if}
 						</p>
 					</div>
-					<Badge variant={correct ? 'default' : 'destructive'} class="shrink-0 text-xs px-1.5">
+					<Badge
+						variant={correct ? 'default' : 'destructive'}
+						class="shrink-0 text-xs px-1.5 {correct ? 'bg-green-600 text-white hover:bg-green-600' : ''}"
+					>
 						{correct ? '✓' : '✕'}
 					</Badge>
 				</li>
