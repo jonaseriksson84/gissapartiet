@@ -3,17 +3,22 @@ import {
 	liveCounters,
 	accuracyByParty,
 	confusionMatrix,
-	misidentificationByParty
+	misidentificationByParty,
+	easiestPerParty,
+	hardestPerParty,
+	type MpAccuracyEntry
 } from '$lib/server/aggregations';
 import { fetchMPs } from '$lib/riksdagen';
 
 export const load: PageServerLoad = async ({ platform, fetch }) => {
 	const db = platform!.env.DB;
-	const [counters, accuracy, matrix, misidentRaw, mps] = await Promise.all([
+	const [counters, accuracy, matrix, misidentRaw, easiestRaw, hardestRaw, mps] = await Promise.all([
 		liveCounters(db),
 		accuracyByParty(db),
 		confusionMatrix(db),
 		misidentificationByParty(db),
+		easiestPerParty(db),
+		hardestPerParty(db),
 		fetchMPs(fetch)
 	]);
 
@@ -31,5 +36,23 @@ export const load: PageServerLoad = async ({ platform, fetch }) => {
 		};
 	});
 
-	return { counters, accuracy, matrix, misidentification };
+	function enrichAccuracy(entries: MpAccuracyEntry[]) {
+		return entries.map((entry) => {
+			const mp = mpMap.get(entry.mpId);
+			return {
+				...entry,
+				name: mp ? `${mp.firstName} ${mp.lastName}` : entry.mpId,
+				photoUrl: mp?.photoUrl ?? null
+			};
+		});
+	}
+
+	return {
+		counters,
+		accuracy,
+		matrix,
+		misidentification,
+		easiest: enrichAccuracy(easiestRaw),
+		hardest: enrichAccuracy(hardestRaw)
+	};
 };

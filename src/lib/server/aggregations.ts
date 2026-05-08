@@ -90,6 +90,61 @@ export async function confusionMatrix(db: D1Database): Promise<ConfusionMatrixCe
 	}));
 }
 
+export interface MpAccuracyEntry {
+	party: string;
+	mpId: string;
+	correct: number;
+	total: number;
+	accuracy: number;
+}
+
+async function mpAccuracyRanked(
+	db: D1Database,
+	minN: number,
+	order: 'DESC' | 'ASC'
+): Promise<MpAccuracyEntry[]> {
+	const sql =
+		order === 'DESC'
+			? `SELECT correct_party_id AS party, mp_id, SUM(was_correct) AS correct, COUNT(*) AS total
+         FROM events
+         GROUP BY correct_party_id, mp_id
+         HAVING COUNT(*) >= ?
+         ORDER BY correct_party_id, SUM(was_correct) * 1.0 / COUNT(*) DESC`
+			: `SELECT correct_party_id AS party, mp_id, SUM(was_correct) AS correct, COUNT(*) AS total
+         FROM events
+         GROUP BY correct_party_id, mp_id
+         HAVING COUNT(*) >= ?
+         ORDER BY correct_party_id, SUM(was_correct) * 1.0 / COUNT(*) ASC`;
+
+	const { results } = await db
+		.prepare(sql)
+		.bind(minN)
+		.all<{ party: string; mp_id: string; correct: number; total: number }>();
+
+	const seen = new Map<string, number>();
+	return results
+		.filter((r) => {
+			const n = (seen.get(r.party) ?? 0) + 1;
+			seen.set(r.party, n);
+			return n <= 5;
+		})
+		.map((r) => ({
+			party: r.party,
+			mpId: r.mp_id,
+			correct: r.correct,
+			total: r.total,
+			accuracy: Math.round((r.correct / r.total) * 1000) / 10
+		}));
+}
+
+export function easiestPerParty(db: D1Database, minN = 15): Promise<MpAccuracyEntry[]> {
+	return mpAccuracyRanked(db, minN, 'DESC');
+}
+
+export function hardestPerParty(db: D1Database, minN = 15): Promise<MpAccuracyEntry[]> {
+	return mpAccuracyRanked(db, minN, 'ASC');
+}
+
 export async function misidentificationByParty(db: D1Database): Promise<MisidentificationEntry[]> {
 	const { results } = await db
 		.prepare(

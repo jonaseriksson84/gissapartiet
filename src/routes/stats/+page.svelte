@@ -61,6 +61,17 @@
 		return misidentification.filter((e) => e.guessedParty === party);
 	}
 
+	const easiest = untrack(() => data.easiest);
+	const hardest = untrack(() => data.hardest);
+
+	function easiestForParty(party: string) {
+		return easiest.filter((e) => e.party === party);
+	}
+
+	function hardestForParty(party: string) {
+		return hardest.filter((e) => e.party === party);
+	}
+
 	const PARTY_ABBR: Record<string, string> = {
 		S: 'S',
 		M: 'M',
@@ -188,6 +199,78 @@
 					{/each}
 				</TableBody>
 			</Table>
+		</div>
+	</section>
+
+	<section>
+		<h2 class="text-lg font-semibold mb-3">Lättast att gissa</h2>
+		<p class="text-sm text-muted-foreground mb-4">
+			Ledamöter som gissas rätt oftast per parti (minst 15 gissningar)
+		</p>
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+			{#each ALL_PARTIES as party}
+				{@const entries = easiestForParty(party)}
+				<div>
+					<h3 class="text-sm font-semibold mb-2">{PARTY_NAMES[party]}</h3>
+					{#if entries.length > 0}
+						<ul class="space-y-2">
+							{#each entries as entry}
+								<li class="flex items-center gap-2 text-sm">
+									{#if entry.photoUrl}
+										<img
+											src={entry.photoUrl}
+											alt=""
+											class="w-8 h-8 rounded-full object-cover shrink-0"
+										/>
+									{/if}
+									<span class="font-medium truncate">{entry.name}</span>
+									<span class="ml-auto text-muted-foreground tabular-nums shrink-0">
+										{entry.accuracy.toLocaleString('sv-SE', { maximumFractionDigits: 1 })} %
+									</span>
+								</li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="text-xs text-muted-foreground">behöver fler gissningar</p>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	</section>
+
+	<section>
+		<h2 class="text-lg font-semibold mb-3">Svårast att gissa</h2>
+		<p class="text-sm text-muted-foreground mb-4">
+			Ledamöter som gissas rätt minst per parti (minst 15 gissningar)
+		</p>
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+			{#each ALL_PARTIES as party}
+				{@const entries = hardestForParty(party)}
+				<div>
+					<h3 class="text-sm font-semibold mb-2">{PARTY_NAMES[party]}</h3>
+					{#if entries.length > 0}
+						<ul class="space-y-2">
+							{#each entries as entry}
+								<li class="flex items-center gap-2 text-sm">
+									{#if entry.photoUrl}
+										<img
+											src={entry.photoUrl}
+											alt=""
+											class="w-8 h-8 rounded-full object-cover shrink-0"
+										/>
+									{/if}
+									<span class="font-medium truncate">{entry.name}</span>
+									<span class="ml-auto text-muted-foreground tabular-nums shrink-0">
+										{entry.accuracy.toLocaleString('sv-SE', { maximumFractionDigits: 1 })} %
+									</span>
+								</li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="text-xs text-muted-foreground">behöver fler gissningar</p>
+					{/if}
+				</div>
+			{/each}
 		</div>
 	</section>
 

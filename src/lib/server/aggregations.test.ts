@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Database from 'better-sqlite3';
-import { liveCounters, accuracyByParty, confusionMatrix, misidentificationByParty } from './aggregations';
+import { liveCounters, accuracyByParty, confusionMatrix, misidentificationByParty, easiestPerParty, hardestPerParty } from './aggregations';
 
 const SCHEMA = `
   CREATE TABLE events (
@@ -255,6 +255,139 @@ describe('misidentificationByParty', () => {
 			{ session_id: 's1', mp_id: 'mp1', guessed_party_id: 'S', correct_party_id: 'S', was_correct: 1 }
 		]);
 		const entries = await misidentificationByParty(makeD1(sqlite));
+		expect(entries).toEqual([]);
+	});
+});
+
+// Fixture for easiest/hardest tests:
+// Party S: mp-s1 (15 correct, 0 wrong → 100%), mp-s2 (10 correct, 5 wrong → 66.7%), mp-s3 (2 correct, 13 wrong → 13.3%)
+// Party S: mp-s-below with only 10 events → below n floor
+// Party M: mp-m1 (20 correct, 5 wrong → 80%)
+function buildAccuracyFixture(): FixtureRow[] {
+	const rows: FixtureRow[] = [];
+	for (let i = 0; i < 15; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-s1', guessed_party_id: 'S', correct_party_id: 'S', was_correct: 1 });
+	}
+	for (let i = 0; i < 10; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-s2', guessed_party_id: 'S', correct_party_id: 'S', was_correct: 1 });
+	}
+	for (let i = 0; i < 5; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-s2', guessed_party_id: 'M', correct_party_id: 'S', was_correct: 0 });
+	}
+	for (let i = 0; i < 2; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-s3', guessed_party_id: 'S', correct_party_id: 'S', was_correct: 1 });
+	}
+	for (let i = 0; i < 13; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-s3', guessed_party_id: 'M', correct_party_id: 'S', was_correct: 0 });
+	}
+	for (let i = 0; i < 10; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-s-below', guessed_party_id: 'S', correct_party_id: 'S', was_correct: 1 });
+	}
+	for (let i = 0; i < 20; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-m1', guessed_party_id: 'M', correct_party_id: 'M', was_correct: 1 });
+	}
+	for (let i = 0; i < 5; i++) {
+		rows.push({ session_id: 's1', mp_id: 'mp-m1', guessed_party_id: 'S', correct_party_id: 'M', was_correct: 0 });
+	}
+	return rows;
+}
+
+describe('easiestPerParty', () => {
+	let d1: D1Database;
+
+	beforeEach(() => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		seed(sqlite, buildAccuracyFixture());
+		d1 = makeD1(sqlite);
+	});
+
+	it('excludes MPs below the n floor', async () => {
+		const entries = await easiestPerParty(d1);
+		expect(entries.map((e) => e.mpId)).not.toContain('mp-s-below');
+	});
+
+	it('includes MPs meeting the threshold', async () => {
+		const entries = await easiestPerParty(d1);
+		const sIds = entries.filter((e) => e.party === 'S').map((e) => e.mpId).sort();
+		expect(sIds).toEqual(['mp-s1', 'mp-s2', 'mp-s3']);
+	});
+
+	it('sorts easiest first (highest accuracy) within party', async () => {
+		const entries = await easiestPerParty(d1);
+		const s = entries.filter((e) => e.party === 'S');
+		expect(s[0].mpId).toBe('mp-s1');
+		expect(s[0].accuracy).toBe(100);
+		expect(s[s.length - 1].mpId).toBe('mp-s3');
+	});
+
+	it('computes accuracy correctly', async () => {
+		const entries = await easiestPerParty(d1);
+		const s2 = entries.find((e) => e.mpId === 'mp-s2')!;
+		expect(s2.total).toBe(15);
+		expect(s2.correct).toBe(10);
+		expect(s2.accuracy).toBeCloseTo(66.7, 1);
+	});
+
+	it('limits to 5 per party', async () => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		const rows: FixtureRow[] = Array.from({ length: 7 }, (_, i) =>
+			Array.from({ length: 15 }, () => ({
+				session_id: 's1',
+				mp_id: `mp-many-${i}`,
+				guessed_party_id: 'S',
+				correct_party_id: 'S',
+				was_correct: 1 as 0 | 1
+			}))
+		).flat();
+		seed(sqlite, rows);
+		const entries = await easiestPerParty(makeD1(sqlite));
+		expect(entries.filter((e) => e.party === 'S').length).toBe(5);
+	});
+
+	it('returns empty when no MPs meet the n floor', async () => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		seed(sqlite, FIXTURE);
+		const entries = await easiestPerParty(makeD1(sqlite));
+		expect(entries).toEqual([]);
+	});
+
+	it('respects custom minN parameter', async () => {
+		const entries = await easiestPerParty(d1, 1);
+		expect(entries.map((e) => e.mpId)).toContain('mp-s-below');
+	});
+});
+
+describe('hardestPerParty', () => {
+	let d1: D1Database;
+
+	beforeEach(() => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		seed(sqlite, buildAccuracyFixture());
+		d1 = makeD1(sqlite);
+	});
+
+	it('excludes MPs below the n floor', async () => {
+		const entries = await hardestPerParty(d1);
+		expect(entries.map((e) => e.mpId)).not.toContain('mp-s-below');
+	});
+
+	it('sorts hardest first (lowest accuracy) within party', async () => {
+		const entries = await hardestPerParty(d1);
+		const s = entries.filter((e) => e.party === 'S');
+		expect(s[0].mpId).toBe('mp-s3');
+		expect(s[s.length - 1].mpId).toBe('mp-s1');
+		expect(s[s.length - 1].accuracy).toBe(100);
+	});
+
+	it('returns empty when no MPs meet the n floor', async () => {
+		const sqlite = new Database(':memory:');
+		sqlite.exec(SCHEMA);
+		seed(sqlite, FIXTURE);
+		const entries = await hardestPerParty(makeD1(sqlite));
 		expect(entries).toEqual([]);
 	});
 });
