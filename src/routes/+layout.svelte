@@ -18,13 +18,13 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div class="min-h-svh flex flex-col">
-	<header class="border-b border-border px-4 py-3 flex items-center justify-between gap-3">
+	<header class="border-b border-border px-4 py-3 flex flex-wrap items-center justify-between gap-3">
 		<div class="flex items-center gap-3 shrink-0">
 			<a href="/" class="font-semibold tracking-tight hover:text-foreground/80 transition-colors">Gissa partiet</a>
 			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
 		</div>
 
-		<div class="flex items-center gap-3 text-sm tabular-nums">
+		<div class="order-last w-full flex justify-center items-center gap-3 text-sm tabular-nums sm:order-none sm:w-auto">
 			<span class="flex flex-col items-center leading-tight">
 				<span class="font-semibold">{$playerStats.correct}/{$playerStats.total}</span>
 				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rätt</span>
