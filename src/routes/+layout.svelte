@@ -21,6 +21,32 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 	<link rel="manifest" href="/site.webmanifest" />
 	<meta name="theme-color" content="#FECC02" />
+
+	<meta
+		name="description"
+		content="Kan du gissa rätt parti utifrån bilden? En quiz med Sveriges riksdagsledamöter — skamlöst inspirerad av guesstheparty.co.uk."
+	/>
+
+	<meta property="og:type" content="website" />
+	<meta property="og:locale" content="sv_SE" />
+	<meta property="og:site_name" content="Gissa partiet" />
+	<meta property="og:title" content="Gissa partiet" />
+	<meta
+		property="og:description"
+		content="Kan du gissa rätt parti utifrån bilden? En quiz med Sveriges riksdagsledamöter."
+	/>
+	<meta property="og:url" content="https://gissapartiet.se" />
+	<meta property="og:image" content="https://gissapartiet.se/android-chrome-512x512.png" />
+	<meta property="og:image:width" content="512" />
+	<meta property="og:image:height" content="512" />
+
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="Gissa partiet" />
+	<meta
+		name="twitter:description"
+		content="Kan du gissa rätt parti utifrån bilden? En quiz med Sveriges riksdagsledamöter."
+	/>
+	<meta name="twitter:image" content="https://gissapartiet.se/android-chrome-512x512.png" />
 </svelte:head>
 
 <div class="min-h-svh flex flex-col">
