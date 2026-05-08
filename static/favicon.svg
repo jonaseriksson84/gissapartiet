@@ -1,0 +1,21 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Yellow background -->
+  <rect width="64" height="64" fill="#FECC02"/>
+  <!-- Ballot box body -->
+  <rect x="10" y="20" width="44" height="34" fill="#0058A3" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Ballot box top/lid -->
+  <rect x="8" y="16" width="48" height="6" fill="#0058A3" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Ballot slot -->
+  <rect x="22" y="18" width="20" height="2" fill="#1a1a1a"/>
+  <!-- Question mark as vector path, centered at x=32, baseline ~y=46 -->
+  <!-- Hook of the ? -->
+  <path d="M 25 33
+           Q 25 27, 32 27
+           Q 39 27, 39 32
+           Q 39 35, 36 37
+           Q 32 39, 32 43
+           L 32 45"
+        fill="none" stroke="#FECC02" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dot of the ? -->
+  <circle cx="32" cy="49" r="1.9" fill="#FECC02"/>
+</svg>
