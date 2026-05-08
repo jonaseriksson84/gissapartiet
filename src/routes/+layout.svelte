@@ -25,7 +25,7 @@
 		</div>
 
 		<div class="order-last w-full grid grid-cols-[1fr_auto_1fr] items-center text-sm tabular-nums sm:order-none sm:w-auto sm:flex sm:gap-3">
-			<div class="hidden sm:block"></div>
+			<div></div>
 
 			<div class="flex items-center gap-3 justify-self-center sm:justify-self-auto sm:contents">
 				<span class="flex flex-col items-center leading-tight">
