@@ -20,6 +20,9 @@ export interface GuessEntry {
 	photoUrl: string;
 	correctParty: Party;
 	guessedParty: Party;
+	// ms timestamp; used as the {#each} key to avoid duplicate-key crashes
+	// when the same MP/party combo appears more than once in a session.
+	at: number;
 }
 
 export const DEFAULT_STATS: PlayerStats = { correct: 0, total: 0, streak: 0, best: 0 };
@@ -61,7 +64,13 @@ export function readGuesses(adapter: StorageAdapter): GuessEntry[] {
 	try {
 		const parsed = JSON.parse(raw);
 		if (!Array.isArray(parsed)) return [];
-		return parsed;
+		// Back-fill `at` for legacy entries written before the timestamp field
+		// existed. We use a descending counter so older entries get smaller
+		// timestamps (preserving newest-first order), spaced 1ms apart.
+		const now = Date.now();
+		return parsed.map((entry, i) =>
+			typeof entry?.at === 'number' ? entry : { ...entry, at: now - i }
+		);
 	} catch {
 		return [];
 	}

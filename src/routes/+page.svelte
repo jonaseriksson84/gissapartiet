@@ -80,7 +80,8 @@
 					mpLastName: gs.currentMP!.lastName,
 					photoUrl: gs.currentMP!.photoUrl,
 					correctParty,
-					guessedParty
+					guessedParty,
+					at: Date.now()
 				},
 				...entries
 			];

@@ -27,7 +27,8 @@ const SAMPLE_GUESS: GuessEntry = {
 	mpLastName: 'Svensson',
 	photoUrl: 'https://example.com/photo.jpg',
 	correctParty: 'S',
-	guessedParty: 'M'
+	guessedParty: 'M',
+	at: 1700000000000
 };
 
 describe('readStats', () => {

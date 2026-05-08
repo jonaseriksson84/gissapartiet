@@ -17,7 +17,7 @@
 		<Separator class="mb-3" />
 		<p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Senaste gissningar</p>
 		<ul class="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
-			{#each entries as entry (entry.mpId + entry.mpFirstName + entry.mpLastName + entry.guessedParty)}
+			{#each entries as entry (entry.at)}
 				{@const correct = entry.guessedParty === entry.correctParty}
 				<li class="flex items-center gap-2 text-sm">
 					<img
