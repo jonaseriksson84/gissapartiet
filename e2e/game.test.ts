@@ -17,6 +17,32 @@ const RIKSDAG_FIXTURE = {
 	}
 };
 
+test('preloads next MP photo during reveal only', async ({ page }) => {
+	await page.route('https://data.riksdagen.se/**', (route) =>
+		route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify(RIKSDAG_FIXTURE)
+		})
+	);
+
+	await page.goto('/');
+	await expect(page.getByText(/8 ledamöter inlästa/)).toBeVisible();
+
+	// No preload before first guess
+	await expect(page.locator('link[rel="preload"][as="image"]')).not.toBeAttached();
+
+	// Click any party button to trigger a round
+	await page.getByRole('button', { name: 'Socialdemokraterna' }).click();
+
+	// During reveal phase, preload link for next MP should be present
+	await expect(page.locator('link[rel="preload"][as="image"]')).toBeAttached();
+
+	// After dwell + buffer, reveal is over and preload link is gone
+	await page.waitForTimeout(4000);
+	await expect(page.locator('link[rel="preload"][as="image"]')).not.toBeAttached();
+});
+
 test('happy-path round flow', async ({ page }) => {
 	await page.route('https://data.riksdagen.se/**', (route) =>
 		route.fulfill({

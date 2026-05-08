@@ -27,6 +27,7 @@
 	let dwellTimer: ReturnType<typeof setTimeout> | null = null;
 	let revealKey = $state(0);
 	let prefersReducedMotion = $state(false);
+	let nextPhotoUrl = $state('');
 
 	onMount(async () => {
 		const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -99,8 +100,10 @@
 		}).catch(() => {});
 
 		const { mp: nextMP } = sampleMP(mps);
+		nextPhotoUrl = nextMP.photoUrl;
 		dwellTimer = setTimeout(() => {
 			gs = gameReducer(gs, { type: 'advance', mp: nextMP });
+			nextPhotoUrl = '';
 			dwellTimer = null;
 		}, DWELL_MS);
 	}
@@ -108,6 +111,9 @@
 
 <svelte:head>
 	<title>Gissa partiet</title>
+	{#if gs.phase === 'revealing' && nextPhotoUrl}
+		<link rel="preload" as="image" href={nextPhotoUrl} />
+	{/if}
 </svelte:head>
 
 <main class="flex flex-col items-center justify-center px-4 py-8 gap-6">
