@@ -25,8 +25,9 @@ interface PersonlistaResponse {
 	};
 }
 
-const API_URL =
-	'https://data.riksdagen.se/personlista/?rdlaktiv=tjst&utformat=json';
+// Hits our /api/mps proxy by default (CF-edge cached). Tests + the e2e
+// harness pass an absolute URL via fetchFn override / mocked routes.
+const API_URL = '/api/mps';
 
 function normalizeParty(parti: string): Party {
 	const known: Party[] = ['S', 'M', 'SD', 'V', 'C', 'KD', 'MP', 'L'];

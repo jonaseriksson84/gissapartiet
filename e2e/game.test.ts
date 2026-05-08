@@ -18,6 +18,16 @@ const RIKSDAG_FIXTURE = {
 };
 
 test('preloads next MP photo during reveal only', async ({ page }) => {
+	// fetchMPs now hits our /api/mps proxy instead of data.riksdagen.se
+	// directly. We still leave the upstream route in place for the photo
+	// requests, which continue to load directly.
+	await page.route('**/api/mps', (route) =>
+		route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify(RIKSDAG_FIXTURE)
+		})
+	);
 	await page.route('https://data.riksdagen.se/**', (route) =>
 		route.fulfill({
 			status: 200,
@@ -45,6 +55,16 @@ test('preloads next MP photo during reveal only', async ({ page }) => {
 });
 
 test('happy-path round flow', async ({ page }) => {
+	// fetchMPs now hits our /api/mps proxy instead of data.riksdagen.se
+	// directly. We still leave the upstream route in place for the photo
+	// requests, which continue to load directly.
+	await page.route('**/api/mps', (route) =>
+		route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify(RIKSDAG_FIXTURE)
+		})
+	);
 	await page.route('https://data.riksdagen.se/**', (route) =>
 		route.fulfill({
 			status: 200,
