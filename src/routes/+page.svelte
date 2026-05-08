@@ -116,7 +116,7 @@
 	{/if}
 </svelte:head>
 
-<main class="flex flex-col items-center justify-center px-4 py-8 gap-6">
+<main class="flex flex-col items-center px-4 py-4 gap-4">
 	{#if loadStatus !== 'ready'}
 		<p class="text-muted-foreground text-sm" class:text-destructive={loadStatus === 'error'}>
 			{statusMessage}
@@ -125,11 +125,11 @@
 
 	<div class="w-full max-w-xs">
 		{#if loadStatus === 'loading'}
-			<Card class="overflow-hidden">
+			<Card class="py-0 overflow-hidden">
 				<Skeleton class="aspect-[3/4] w-full rounded-none" />
 			</Card>
 		{:else if loadStatus === 'ready' && gs.currentMP}
-			<Card class="overflow-hidden relative">
+			<Card class="py-0 overflow-hidden relative">
 				{#key gs.currentMP.id}
 					<img
 						in:fade={{ duration: prefersReducedMotion ? 0 : 150 }}
