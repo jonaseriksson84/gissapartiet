@@ -39,12 +39,12 @@
 				<span class="font-semibold">{$playerStats.best}</span>
 				<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Bäst</span>
 			</span>
-		</div>
-
-		<div class="flex items-center gap-2 shrink-0">
 			<Button variant="ghost" size="sm" onclick={handleReset} class="text-muted-foreground text-xs px-2">
 				Återställ
 			</Button>
+		</div>
+
+		<div class="flex items-center gap-2 shrink-0">
 			<DarkModeToggle />
 		</div>
 	</header>
