@@ -303,18 +303,18 @@ describe('easiestPerParty', () => {
 	});
 
 	it('excludes MPs below the n floor', async () => {
-		const entries = await easiestPerParty(d1);
+		const entries = await easiestPerParty(d1, 15);
 		expect(entries.map((e) => e.mpId)).not.toContain('mp-s-below');
 	});
 
 	it('includes MPs meeting the threshold', async () => {
-		const entries = await easiestPerParty(d1);
+		const entries = await easiestPerParty(d1, 15);
 		const sIds = entries.filter((e) => e.party === 'S').map((e) => e.mpId).sort();
 		expect(sIds).toEqual(['mp-s1', 'mp-s2', 'mp-s3']);
 	});
 
 	it('sorts easiest first (highest accuracy) within party', async () => {
-		const entries = await easiestPerParty(d1);
+		const entries = await easiestPerParty(d1, 15);
 		const s = entries.filter((e) => e.party === 'S');
 		expect(s[0].mpId).toBe('mp-s1');
 		expect(s[0].accuracy).toBe(100);
@@ -322,7 +322,7 @@ describe('easiestPerParty', () => {
 	});
 
 	it('computes accuracy correctly', async () => {
-		const entries = await easiestPerParty(d1);
+		const entries = await easiestPerParty(d1, 15);
 		const s2 = entries.find((e) => e.mpId === 'mp-s2')!;
 		expect(s2.total).toBe(15);
 		expect(s2.correct).toBe(10);
@@ -350,7 +350,7 @@ describe('easiestPerParty', () => {
 		const sqlite = new Database(':memory:');
 		sqlite.exec(SCHEMA);
 		seed(sqlite, FIXTURE);
-		const entries = await easiestPerParty(makeD1(sqlite));
+		const entries = await easiestPerParty(makeD1(sqlite), 15);
 		expect(entries).toEqual([]);
 	});
 
@@ -371,12 +371,12 @@ describe('hardestPerParty', () => {
 	});
 
 	it('excludes MPs below the n floor', async () => {
-		const entries = await hardestPerParty(d1);
+		const entries = await hardestPerParty(d1, 15);
 		expect(entries.map((e) => e.mpId)).not.toContain('mp-s-below');
 	});
 
 	it('sorts hardest first (lowest accuracy) within party', async () => {
-		const entries = await hardestPerParty(d1);
+		const entries = await hardestPerParty(d1, 15);
 		const s = entries.filter((e) => e.party === 'S');
 		expect(s[0].mpId).toBe('mp-s3');
 		expect(s[s.length - 1].mpId).toBe('mp-s1');
@@ -387,7 +387,7 @@ describe('hardestPerParty', () => {
 		const sqlite = new Database(':memory:');
 		sqlite.exec(SCHEMA);
 		seed(sqlite, FIXTURE);
-		const entries = await hardestPerParty(makeD1(sqlite));
+		const entries = await hardestPerParty(makeD1(sqlite), 15);
 		expect(entries).toEqual([]);
 	});
 });

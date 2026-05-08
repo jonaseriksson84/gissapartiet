@@ -137,11 +137,14 @@ async function mpAccuracyRanked(
 		}));
 }
 
-export function easiestPerParty(db: D1Database, minN = 15): Promise<MpAccuracyEntry[]> {
+// minN was 15 (matched the UK reference) but with low traffic that produced
+// empty lists for almost every party. Lowered to 1 so we show whatever data
+// exists; the floor is still configurable for future tuning.
+export function easiestPerParty(db: D1Database, minN = 1): Promise<MpAccuracyEntry[]> {
 	return mpAccuracyRanked(db, minN, 'DESC');
 }
 
-export function hardestPerParty(db: D1Database, minN = 15): Promise<MpAccuracyEntry[]> {
+export function hardestPerParty(db: D1Database, minN = 1): Promise<MpAccuracyEntry[]> {
 	return mpAccuracyRanked(db, minN, 'ASC');
 }
 

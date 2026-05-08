@@ -205,7 +205,7 @@
 	<section>
 		<h2 class="text-lg font-semibold mb-3">Lättast att gissa</h2>
 		<p class="text-sm text-muted-foreground mb-4">
-			Ledamöter som gissas rätt oftast per parti (minst 15 gissningar)
+			Ledamöter som gissas rätt oftast per parti
 		</p>
 		<div class="grid grid-cols-1 gap-6">
 			{#each ALL_PARTIES as party}
@@ -241,7 +241,7 @@
 	<section>
 		<h2 class="text-lg font-semibold mb-3">Svårast att gissa</h2>
 		<p class="text-sm text-muted-foreground mb-4">
-			Ledamöter som gissas rätt minst per parti (minst 15 gissningar)
+			Ledamöter som gissas rätt minst per parti
 		</p>
 		<div class="grid grid-cols-1 gap-6">
 			{#each ALL_PARTIES as party}
