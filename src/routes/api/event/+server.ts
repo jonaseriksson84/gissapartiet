@@ -24,7 +24,7 @@ function isValidPayload(body: unknown): body is EventPayload {
 	);
 }
 
-export function createPostHandler(limiter: RateLimiter = defaultLimiter): RequestHandler {
+export function _createPostHandler(limiter: RateLimiter = defaultLimiter): RequestHandler {
 	return async ({ request, platform }) => {
 		const body: unknown = await request.json();
 
@@ -52,4 +52,4 @@ export function createPostHandler(limiter: RateLimiter = defaultLimiter): Reques
 	};
 }
 
-export const POST = createPostHandler();
+export const POST = _createPostHandler();

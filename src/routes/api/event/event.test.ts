@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createPostHandler } from './+server';
+import { _createPostHandler, POST } from './+server';
 import { createRateLimiter } from '$lib/server/rate-limit';
 
 function makeMockDB() {
@@ -44,8 +44,21 @@ const validPayload = {
 
 function makeUnlimitedPost() {
 	const limiter = createRateLimiter({ maxRequests: 1000, windowMs: 60_000 });
-	return createPostHandler(limiter);
+	return _createPostHandler(limiter);
 }
+
+describe('POST export (route-level smoke test)', () => {
+	it('the exported POST handler accepts a valid payload without throwing', async () => {
+		const db = makeMockDB();
+		const response = await POST({
+			request: makeRequest(validPayload),
+			platform: makePlatform(db)
+		} as Parameters<typeof POST>[0]);
+
+		expect(response.status).toBe(200);
+		expect(await response.json()).toEqual({ ok: true });
+	});
+});
 
 describe('POST /api/event', () => {
 	it('inserts a row on valid payload and returns ok', async () => {
@@ -119,7 +132,7 @@ describe('POST /api/event', () => {
 	it('returns 429 when the session exceeds the rate limit', async () => {
 		let now = 1000;
 		const limiter = createRateLimiter({ maxRequests: 3, windowMs: 10_000, clock: () => now });
-		const POST = createPostHandler(limiter);
+		const POST = _createPostHandler(limiter);
 		const db = makeMockDB();
 
 		const call = () => POST({
@@ -139,7 +152,7 @@ describe('POST /api/event', () => {
 	it('allows requests again after the rate-limit window resets', async () => {
 		let now = 1000;
 		const limiter = createRateLimiter({ maxRequests: 2, windowMs: 5_000, clock: () => now });
-		const POST = createPostHandler(limiter);
+		const POST = _createPostHandler(limiter);
 		const db = makeMockDB();
 
 		const call = () => POST({
