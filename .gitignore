@@ -24,3 +24,9 @@ vite.config.ts.timestamp-*
 
 # Tooling artifacts
 .playwright-cli/
+
+# Playwright test output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

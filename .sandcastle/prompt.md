@@ -45,12 +45,21 @@ From the `ready-for-agent` list above, pick the **lowest-numbered** issue that i
    - Refactor if needed
    - Repeat until every acceptance-criterion checkbox is covered
 
-4. **Verify.** Before committing, run any of these scripts that exist in `package.json`:
+4. **Verify.** Before committing, run every test/check script that exists in `package.json` and is relevant to the issue:
    - `npm run typecheck`
    - `npm test`
+   - `npm run test:e2e` if the issue touches the user-facing flow or the e2e suite
    - `npm run lint`
 
    Fix any failures. Don't commit broken code.
+
+   **If a verification suite cannot run in your sandbox** (e.g. Playwright needs browser libraries you can't install, a native binary won't load on this CPU arch, an external service is unreachable), this is **not** a green light to ship. You must:
+
+   - Comment on the issue with the *exact* command that failed and the *exact* error message
+   - Swap the label `ready-for-agent` → `ready-for-human`
+   - Stop the iteration without closing the issue and without committing test code that hasn't been executed
+
+   Do **not** ship code claiming "verified by curl / unit tests / inspection" when the suite the issue actually requires (e.g. Playwright for an E2E ticket) has never been run. That is a regression-shipping mistake the harness considers a hard failure.
 
 5. **Commit.** A single clean commit (squash WIP commits if any). The message must:
    - Be a clear one-line summary of what changed
