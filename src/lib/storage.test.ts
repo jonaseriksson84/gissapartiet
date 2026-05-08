@@ -1,5 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { readStats, writeStats, clearStats, DEFAULT_STATS, type StorageAdapter } from './storage';
+import { describe, it, expect } from 'vitest';
+import {
+	readStats,
+	writeStats,
+	clearStats,
+	clear,
+	readGuesses,
+	writeGuesses,
+	DEFAULT_STATS,
+	type StorageAdapter,
+	type GuessEntry
+} from './storage';
 
 function fakeAdapter(): StorageAdapter & { store: Record<string, string> } {
 	const store: Record<string, string> = {};
@@ -10,6 +20,15 @@ function fakeAdapter(): StorageAdapter & { store: Record<string, string> } {
 		clear: () => { for (const k in store) delete store[k]; }
 	};
 }
+
+const SAMPLE_GUESS: GuessEntry = {
+	mpId: 'abc123',
+	mpFirstName: 'Anna',
+	mpLastName: 'Svensson',
+	photoUrl: 'https://example.com/photo.jpg',
+	correctParty: 'S',
+	guessedParty: 'M'
+};
 
 describe('readStats', () => {
 	it('returns defaults when storage is empty', () => {
@@ -58,5 +77,53 @@ describe('clearStats', () => {
 		writeStats({ correct: 2, total: 3, streak: 1, best: 2 }, adapter);
 		clearStats(adapter);
 		expect(readStats(adapter)).toEqual(DEFAULT_STATS);
+	});
+});
+
+describe('readGuesses', () => {
+	it('returns empty array when storage is empty', () => {
+		const adapter = fakeAdapter();
+		expect(readGuesses(adapter)).toEqual([]);
+	});
+
+	it('returns written guesses', () => {
+		const adapter = fakeAdapter();
+		writeGuesses([SAMPLE_GUESS], adapter);
+		expect(readGuesses(adapter)).toEqual([SAMPLE_GUESS]);
+	});
+
+	it('returns empty array on invalid JSON', () => {
+		const adapter = fakeAdapter();
+		adapter.setItem('recent_guesses', 'not-json');
+		expect(readGuesses(adapter)).toEqual([]);
+	});
+
+	it('returns empty array when value is not an array', () => {
+		const adapter = fakeAdapter();
+		adapter.setItem('recent_guesses', JSON.stringify({ foo: 'bar' }));
+		expect(readGuesses(adapter)).toEqual([]);
+	});
+});
+
+describe('writeGuesses', () => {
+	it('persists multiple guesses that can be read back', () => {
+		const adapter = fakeAdapter();
+		const entries: GuessEntry[] = [
+			SAMPLE_GUESS,
+			{ ...SAMPLE_GUESS, mpId: 'xyz', correctParty: 'M', guessedParty: 'M' }
+		];
+		writeGuesses(entries, adapter);
+		expect(readGuesses(adapter)).toEqual(entries);
+	});
+});
+
+describe('clear', () => {
+	it('removes all stored data (stats and guesses)', () => {
+		const adapter = fakeAdapter();
+		writeStats({ correct: 2, total: 3, streak: 1, best: 2 }, adapter);
+		writeGuesses([SAMPLE_GUESS], adapter);
+		clear(adapter);
+		expect(readStats(adapter)).toEqual(DEFAULT_STATS);
+		expect(readGuesses(adapter)).toEqual([]);
 	});
 });

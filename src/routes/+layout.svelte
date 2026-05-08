@@ -2,9 +2,17 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import DarkModeToggle from '$lib/components/DarkModeToggle.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import { playerStats } from '$lib/player-stats';
+	import { clear } from '$lib/storage';
 
 	let { children } = $props();
+
+	function handleReset() {
+		if (!confirm('Vill du återställa din spelhistorik? Poäng, streak och gissningar raderas.')) return;
+		clear(localStorage);
+		window.location.reload();
+	}
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -30,8 +38,11 @@
 			</span>
 		</div>
 
-		<div class="flex items-center gap-4 shrink-0">
+		<div class="flex items-center gap-2 shrink-0">
 			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
+			<Button variant="ghost" size="sm" onclick={handleReset} class="text-muted-foreground text-xs px-2">
+				Återställ
+			</Button>
 			<DarkModeToggle />
 		</div>
 	</header>

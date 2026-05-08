@@ -1,3 +1,5 @@
+import type { Party } from './riksdagen';
+
 export interface StorageAdapter {
 	getItem(key: string): string | null;
 	setItem(key: string, value: string): void;
@@ -11,12 +13,22 @@ export interface PlayerStats {
 	best: number;
 }
 
+export interface GuessEntry {
+	mpId: string;
+	mpFirstName: string;
+	mpLastName: string;
+	photoUrl: string;
+	correctParty: Party;
+	guessedParty: Party;
+}
+
 export const DEFAULT_STATS: PlayerStats = { correct: 0, total: 0, streak: 0, best: 0 };
 
-const KEY = 'player_stats';
+const STATS_KEY = 'player_stats';
+const GUESSES_KEY = 'recent_guesses';
 
 export function readStats(adapter: StorageAdapter): PlayerStats {
-	const raw = adapter.getItem(KEY);
+	const raw = adapter.getItem(STATS_KEY);
 	if (!raw) return { ...DEFAULT_STATS };
 	try {
 		const parsed = JSON.parse(raw);
@@ -40,7 +52,27 @@ export function readStats(adapter: StorageAdapter): PlayerStats {
 }
 
 export function writeStats(stats: PlayerStats, adapter: StorageAdapter): void {
-	adapter.setItem(KEY, JSON.stringify(stats));
+	adapter.setItem(STATS_KEY, JSON.stringify(stats));
+}
+
+export function readGuesses(adapter: StorageAdapter): GuessEntry[] {
+	const raw = adapter.getItem(GUESSES_KEY);
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw);
+		if (!Array.isArray(parsed)) return [];
+		return parsed;
+	} catch {
+		return [];
+	}
+}
+
+export function writeGuesses(entries: GuessEntry[], adapter: StorageAdapter): void {
+	adapter.setItem(GUESSES_KEY, JSON.stringify(entries));
+}
+
+export function clear(adapter: StorageAdapter): void {
+	adapter.clear();
 }
 
 export function clearStats(adapter: StorageAdapter): void {

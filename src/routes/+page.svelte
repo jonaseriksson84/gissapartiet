@@ -4,11 +4,13 @@
 	import type { Party } from '$lib/riksdagen';
 	import { sampleMP } from '$lib/sample';
 	import { gameReducer, INITIAL_STATE, DWELL_MS } from '$lib/game-state';
-	import { readStats, writeStats } from '$lib/storage';
+	import { readStats, writeStats, readGuesses, writeGuesses } from '$lib/storage';
 	import { playerStats } from '$lib/player-stats';
+	import { recentGuesses } from '$lib/recent-guesses';
 	import { Card } from '$lib/components/ui/card';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import AnswerButtons from '$lib/components/AnswerButtons.svelte';
+	import RecentGuesses from '$lib/components/RecentGuesses.svelte';
 
 	const PARTY_NAMES: Record<Party, string> = {
 		S: 'Socialdemokraterna', M: 'Moderaterna', SD: 'Sverigedemokraterna',
@@ -35,6 +37,8 @@
 		gs = gameReducer(gs, { type: 'load-stats', stats: saved });
 		playerStats.set(gs.stats);
 
+		recentGuesses.set(readGuesses(localStorage));
+
 		try {
 			const loaded = await fetchMPs();
 			mps = loaded;
@@ -60,6 +64,22 @@
 		playerStats.set(gs.stats);
 		writeStats(gs.stats, localStorage);
 		revealKey++;
+
+		recentGuesses.update((entries) => {
+			const updated = [
+				{
+					mpId: gs.currentMP!.id,
+					mpFirstName: gs.currentMP!.firstName,
+					mpLastName: gs.currentMP!.lastName,
+					photoUrl: gs.currentMP!.photoUrl,
+					correctParty,
+					guessedParty
+				},
+				...entries
+			];
+			writeGuesses(updated, localStorage);
+			return updated;
+		});
 
 		fetch('/api/event', {
 			method: 'POST',
@@ -131,4 +151,6 @@
 			correctParty={gs.correctParty}
 		/>
 	{/if}
+
+	<RecentGuesses entries={$recentGuesses} />
 </main>
