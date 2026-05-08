@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { scale } from 'svelte/transition';
 	import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '$lib/components/ui/tooltip';
 	import PartySymbol from '$lib/components/PartySymbol.svelte';
 	import type { Party } from '$lib/riksdagen';
@@ -29,6 +31,13 @@
 	];
 
 	const isRevealing = $derived(phase === 'revealing');
+
+	let prefersReducedMotion = $state(false);
+	onMount(() => {
+		const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+		prefersReducedMotion = mq.matches;
+		mq.addEventListener('change', (e) => { prefersReducedMotion = e.matches; });
+	});
 </script>
 
 <TooltipProvider>
@@ -40,7 +49,7 @@
 				<Tooltip>
 					<TooltipTrigger
 						onclick={() => !isRevealing && onGuess(id)}
-						class="rounded-full transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring p-0 border-0 bg-transparent {isRevealing ? 'opacity-40 cursor-not-allowed pointer-events-none' : 'hover:opacity-90 active:opacity-75'}"
+						class="rounded-full transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring p-0 border-0 bg-transparent {isRevealing ? 'opacity-40 cursor-not-allowed pointer-events-none' : 'hover:opacity-90 active:opacity-75 cursor-pointer motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out motion-safe:hover:scale-110 motion-safe:active:scale-95'}"
 						aria-label={name}
 						aria-disabled={isRevealing}
 					>
@@ -50,9 +59,15 @@
 				</Tooltip>
 
 				{#if isCorrect}
-					<span class="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold leading-none pointer-events-none">✓</span>
+					<span
+						in:scale={{ duration: prefersReducedMotion ? 0 : 150, start: 0.5 }}
+						class="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-green-600 text-white text-xs font-bold leading-none pointer-events-none"
+					>✓</span>
 				{:else if isWrong}
-					<span class="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold leading-none pointer-events-none">✕</span>
+					<span
+						in:scale={{ duration: prefersReducedMotion ? 0 : 150, start: 0.5 }}
+						class="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold leading-none pointer-events-none"
+					>✕</span>
 				{/if}
 			</div>
 		{/each}

@@ -22,7 +22,7 @@
 
 {#if party === 'Partilös'}
 	<span
-		class="flex size-10 items-center justify-center rounded-full"
+		class="flex size-11 items-center justify-center rounded-full"
 		style="background:{bg}"
 		aria-hidden="true"
 	>
@@ -31,8 +31,8 @@
 {:else}
 	<svg
 		viewBox="0 0 40 40"
-		width="40"
-		height="40"
+		width="44"
+		height="44"
 		aria-hidden="true"
 		xmlns="http://www.w3.org/2000/svg"
 	>

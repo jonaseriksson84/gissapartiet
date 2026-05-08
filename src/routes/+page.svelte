@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { fetchMPs } from '$lib/riksdagen';
 	import type { Party } from '$lib/riksdagen';
 	import { sampleMP } from '$lib/sample';
@@ -25,8 +26,13 @@
 	let sessionId = '';
 	let dwellTimer: ReturnType<typeof setTimeout> | null = null;
 	let revealKey = $state(0);
+	let prefersReducedMotion = $state(false);
 
 	onMount(async () => {
+		const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+		prefersReducedMotion = mq.matches;
+		mq.addEventListener('change', (e) => { prefersReducedMotion = e.matches; });
+
 		sessionId = sessionStorage.getItem('session_id') ?? (() => {
 			const id = crypto.randomUUID();
 			sessionStorage.setItem('session_id', id);
@@ -114,14 +120,20 @@
 			</Card>
 		{:else if loadStatus === 'ready' && gs.currentMP}
 			<Card class="overflow-hidden relative">
-				<img
-					src={gs.currentMP.photoUrl}
-					alt=""
-					class="aspect-[3/4] w-full object-cover object-top block"
-				/>
+				{#key gs.currentMP.id}
+					<img
+						in:fade={{ duration: prefersReducedMotion ? 0 : 150 }}
+						src={gs.currentMP.photoUrl}
+						alt=""
+						class="aspect-[3/4] w-full object-cover object-top block"
+					/>
+				{/key}
 
 				{#if gs.phase === 'revealing'}
-					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none">
+					<div
+						in:fade={{ duration: prefersReducedMotion ? 0 : 150 }}
+						class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"
+					>
 						<div class="absolute bottom-6 left-4 text-white">
 							<p class="font-semibold text-lg leading-tight">
 								{gs.currentMP.firstName} {gs.currentMP.lastName}
