@@ -1,9 +1,23 @@
 import { run, claudeCode } from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
+import { execSync } from "node:child_process";
 
 // Simple loop: an agent that picks open GitHub issues one by one and closes them.
 // Run this with: npx tsx .sandcastle/main.mts
 // Or add to package.json scripts: "sandcastle": "npx tsx .sandcastle/main.mts"
+
+// Preflight: refuse to start if the host worktree has uncommitted changes.
+// `branchStrategy: merge-to-head` reaches into the host worktree to do the
+// run-end merge; a dirty tree blocks the merge with "Your local changes
+// would be overwritten by merge". A typo'd `npm install 6& npm run dev`
+// once cost us three iterations' worth of stranded work — never again.
+const dirty = execSync("git status --porcelain", { encoding: "utf8" }).trim();
+if (dirty) {
+  console.error("Refusing to start: host worktree has uncommitted changes.");
+  console.error(dirty);
+  console.error("\nCommit or stash first. Sandcastle's merge-to-head needs a clean HEAD.");
+  process.exit(1);
+}
 
 await run({
   // A name for this run, shown as a prefix in log output.
