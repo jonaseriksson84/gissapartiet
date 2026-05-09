@@ -223,10 +223,14 @@
 											class="w-8 h-8 rounded-full object-cover shrink-0"
 										/>
 									{/if}
-									<span class="font-medium truncate">{entry.name}</span>
+									<span class="font-medium truncate">
+										{entry.name}
+										<span class="text-muted-foreground text-xs font-normal">
+											({entry.total} {entry.total === 1 ? 'gissning' : 'gissningar'})
+										</span>
+									</span>
 									<span class="ml-auto text-muted-foreground tabular-nums shrink-0">
 										{entry.accuracy.toLocaleString('sv-SE', { maximumFractionDigits: 1 })} %
-										<span class="text-xs">({entry.total} {entry.total === 1 ? 'gissning' : 'gissningar'})</span>
 									</span>
 								</li>
 							{/each}
@@ -260,10 +264,14 @@
 											class="w-8 h-8 rounded-full object-cover shrink-0"
 										/>
 									{/if}
-									<span class="font-medium truncate">{entry.name}</span>
+									<span class="font-medium truncate">
+										{entry.name}
+										<span class="text-muted-foreground text-xs font-normal">
+											({entry.total} {entry.total === 1 ? 'gissning' : 'gissningar'})
+										</span>
+									</span>
 									<span class="ml-auto text-muted-foreground tabular-nums shrink-0">
 										{entry.accuracy.toLocaleString('sv-SE', { maximumFractionDigits: 1 })} %
-										<span class="text-xs">({entry.total} {entry.total === 1 ? 'gissning' : 'gissningar'})</span>
 									</span>
 								</li>
 							{/each}
