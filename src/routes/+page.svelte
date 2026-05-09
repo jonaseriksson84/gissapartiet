@@ -127,7 +127,7 @@
 	<div class="w-full max-w-xs">
 		{#if loadStatus === 'loading'}
 			<Card class="py-0 overflow-hidden">
-				<Skeleton class="aspect-[3/4] w-full rounded-none" />
+				<Skeleton class="aspect-[10/11] w-full rounded-none" />
 			</Card>
 		{:else if loadStatus === 'ready' && gs.currentMP}
 			<Card class="py-0 overflow-hidden relative">
@@ -136,7 +136,7 @@
 						in:fade={{ duration: prefersReducedMotion ? 0 : 150 }}
 						src={gs.currentMP.photoUrl}
 						alt=""
-						class="aspect-[3/4] w-full object-cover object-top block"
+						class="aspect-[10/11] w-full object-cover object-top block"
 					/>
 				{/key}
 
