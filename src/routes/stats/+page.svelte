@@ -226,6 +226,7 @@
 									<span class="font-medium truncate">{entry.name}</span>
 									<span class="ml-auto text-muted-foreground tabular-nums shrink-0">
 										{entry.accuracy.toLocaleString('sv-SE', { maximumFractionDigits: 1 })} %
+										<span class="text-xs">({entry.total} {entry.total === 1 ? 'gissning' : 'gissningar'})</span>
 									</span>
 								</li>
 							{/each}
@@ -262,6 +263,7 @@
 									<span class="font-medium truncate">{entry.name}</span>
 									<span class="ml-auto text-muted-foreground tabular-nums shrink-0">
 										{entry.accuracy.toLocaleString('sv-SE', { maximumFractionDigits: 1 })} %
+										<span class="text-xs">({entry.total} {entry.total === 1 ? 'gissning' : 'gissningar'})</span>
 									</span>
 								</li>
 							{/each}
