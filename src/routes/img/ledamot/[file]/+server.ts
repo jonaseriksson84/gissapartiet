@@ -2,7 +2,7 @@ import type { RequestHandler } from './$types';
 
 // Riksdagen's photo URLs look like `{hash}_192.jpg` or `{hash}_max.jpg`. Whitelist
 // strictly so we don't accidentally become an open proxy for arbitrary paths.
-const FILE_RE = /^[a-zA-Z0-9]+_(192|max)\.jpg$/;
+const FILE_RE = /^[a-zA-Z0-9-]+_(192|max)\.jpg$/;
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 // Cloudflare Workers exposes `caches.default` as a per-PoP Response cache. Declared
