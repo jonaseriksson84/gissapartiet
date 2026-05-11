@@ -23,6 +23,9 @@ declare global {
 			env: {
 				DB: D1Database;
 			};
+			context: {
+				waitUntil(promise: Promise<unknown>): void;
+			};
 		}
 	}
 }

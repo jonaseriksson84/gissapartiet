@@ -220,6 +220,8 @@
 										<img
 											src={entry.photoUrl}
 											alt=""
+											loading="lazy"
+											decoding="async"
 											class="w-8 h-8 rounded-full object-cover object-top shrink-0 border border-border"
 										/>
 									{/if}
@@ -261,6 +263,8 @@
 										<img
 											src={entry.photoUrl}
 											alt=""
+											loading="lazy"
+											decoding="async"
 											class="w-8 h-8 rounded-full object-cover object-top shrink-0 border border-border"
 										/>
 									{/if}
@@ -302,6 +306,8 @@
 										<img
 											src={entry.photoUrl}
 											alt=""
+											loading="lazy"
+											decoding="async"
 											class="w-8 h-8 rounded-full object-cover object-top shrink-0 border border-border"
 										/>
 									{/if}

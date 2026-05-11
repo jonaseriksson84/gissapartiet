@@ -50,7 +50,10 @@ export async function fetchMPs(fetchFn: typeof fetch = fetch): Promise<MP[]> {
 			firstName: p.tilltalsnamn,
 			lastName: p.efternamn,
 			party: normalizeParty(p.parti),
-			photoUrl: p.bild_url_192
+			photoUrl: p.bild_url_192.replace(
+				'https://data.riksdagen.se/filarkiv/bilder/ledamot/',
+				'/img/ledamot/'
+			)
 		}));
 }
 
