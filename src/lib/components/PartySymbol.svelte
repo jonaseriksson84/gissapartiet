@@ -23,7 +23,7 @@
 {#if party === 'Partilös'}
 	<span
 		class="flex size-11 items-center justify-center rounded-full"
-		style="background:{bg}"
+		style="background: radial-gradient(ellipse 70% 50% at 35% 28%, rgba(255,255,255,0.28) 0%, transparent 100%), {bg};"
 		aria-hidden="true"
 	>
 		<UserX class="size-5 text-white" />
@@ -37,6 +37,8 @@
 		xmlns="http://www.w3.org/2000/svg"
 	>
 		<circle cx="20" cy="20" r="20" fill={bg} />
+		<ellipse cx="14" cy="10" rx="9" ry="5" fill="white" opacity="0.28" />
+		<ellipse cx="20" cy="33" rx="11" ry="5" fill="black" opacity="0.06" />
 		<text
 			x="20"
 			y="20"

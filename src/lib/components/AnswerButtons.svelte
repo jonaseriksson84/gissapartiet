@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '$lib/components/ui/tooltip';
+	import { Button } from '$lib/components/ui/button';
 	import PartySymbol from '$lib/components/PartySymbol.svelte';
 	import type { Party } from '$lib/riksdagen';
 	import type { Phase } from '$lib/game-state';
@@ -30,6 +31,18 @@
 		{ id: 'Partilös', name: 'Partilös' }
 	];
 
+	const shortLabels: Record<Party, string> = {
+		S:        'Social­dem.',
+		M:        'Moderaterna',
+		SD:       'Sverigedem.',
+		V:        'Vänsterp.',
+		C:        'Centern',
+		KD:       'Krist­dem.',
+		MP:       'Miljöp.',
+		L:        'Liberal.',
+		Partilös: 'Partilös'
+	};
+
 	const isRevealing = $derived(phase === 'revealing');
 
 	let prefersReducedMotion = $state(false);
@@ -46,16 +59,19 @@
 		hoverMq.addEventListener('change', (e) => { canHover = e.matches; });
 	});
 
-	const buttonClass =
-		'rounded-full transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring p-0 border-0 bg-transparent';
-	const buttonStateClass = (revealing: boolean) =>
+	const pinBase =
+		'flex items-center gap-2 px-2.5 py-2 rounded-xl bg-card border border-border shadow-sm text-foreground cursor-pointer transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring';
+
+	const pinStateClass = (revealing: boolean, hoverable: boolean) =>
 		revealing
 			? 'opacity-40 cursor-not-allowed pointer-events-none'
-			: 'hover:opacity-90 active:opacity-75 cursor-pointer motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out motion-safe:hover:scale-110 motion-safe:active:scale-95';
+			: hoverable
+				? 'motion-safe:hover:-translate-y-0.5 motion-safe:hover:rotate-1 motion-safe:duration-150 motion-safe:ease-out motion-safe:active:scale-95 hover:shadow-md'
+				: 'active:scale-95 active:opacity-75';
 </script>
 
 <TooltipProvider>
-	<div class="flex flex-wrap justify-center gap-2 max-w-[252px] mx-auto sm:max-w-none" role="group" aria-label="Gissa parti">
+	<div class="flex flex-wrap justify-center gap-2" role="group" aria-label="Gissa parti">
 		{#each parties as { id, name }}
 			{@const isCorrect = isRevealing && correctParty === id}
 			{@const isWrong = isRevealing && guessedParty === id && guessedParty !== correctParty}
@@ -64,24 +80,26 @@
 					<Tooltip>
 						<TooltipTrigger
 							onclick={() => !isRevealing && onGuess(id)}
-							class="{buttonClass} {buttonStateClass(isRevealing)}"
+							class="{pinBase} {pinStateClass(isRevealing, true)}"
 							aria-label={name}
 							aria-disabled={isRevealing}
 						>
 							<PartySymbol party={id} />
+							<span class="text-xs font-medium leading-tight" lang="sv">{shortLabels[id]}</span>
 						</TooltipTrigger>
 						<TooltipContent>{name}</TooltipContent>
 					</Tooltip>
 				{:else}
-					<button
-						type="button"
+					<Button
+						variant="ghost"
 						onclick={() => !isRevealing && onGuess(id)}
-						class="{buttonClass} {buttonStateClass(isRevealing)}"
+						class="{pinBase} {pinStateClass(isRevealing, false)} h-auto whitespace-normal rounded-xl border-border hover:bg-card"
 						aria-label={name}
 						aria-disabled={isRevealing}
 					>
 						<PartySymbol party={id} />
-					</button>
+						<span class="text-xs font-medium leading-tight" lang="sv">{shortLabels[id]}</span>
+					</Button>
 				{/if}
 
 				{#if isCorrect}
