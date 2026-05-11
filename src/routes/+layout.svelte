@@ -1,8 +1,6 @@
 <script lang="ts">
 	import './layout.css';
 	import DarkModeToggle from '$lib/components/DarkModeToggle.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { playerStats } from '$lib/player-stats';
 	import { clear } from '$lib/storage';
 
 	let { children } = $props();
@@ -12,6 +10,21 @@
 		clear(localStorage);
 		window.location.reload();
 	}
+
+	const PARTY_COLORS = [
+		'#ED1B34', /* S */
+		'#1C3D80', /* M */
+		'#006AA7', /* SD */
+		'#DA001A', /* V */
+		'#009933', /* C */
+		'#234F8C', /* KD */
+		'#83B22F', /* MP */
+		'#006AB3', /* L */
+		'#64748b'  /* Partilös */
+	];
+
+	const step = 360 / PARTY_COLORS.length;
+	const logoDot = `conic-gradient(from 0deg, ${PARTY_COLORS.map((c, i) => `${c} ${i * step}deg ${(i + 1) * step}deg`).join(', ')})`;
 </script>
 
 <svelte:head>
@@ -51,46 +64,22 @@
 </svelte:head>
 
 <div class="min-h-svh flex flex-col">
-	<header class="border-b border-border px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-		<div class="flex items-center gap-3 shrink-0">
-			<a href="/" class="font-semibold tracking-tight hover:text-foreground/80 transition-colors">Gissa partiet</a>
-			<a href="/stats" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
-		</div>
-
-		<div class="order-last w-full grid grid-cols-[1fr_auto_1fr] items-center text-sm tabular-nums sm:order-none sm:w-auto sm:flex sm:gap-3">
-			<div></div>
-
-			<div class="flex items-center gap-3 justify-self-center sm:justify-self-auto sm:contents">
-				<span class="flex flex-col items-center leading-tight">
-					<span class="font-semibold">{$playerStats.correct}/{$playerStats.total}</span>
-					<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rätt</span>
-				</span>
-				<span class="text-border">|</span>
-				<span class="flex flex-col items-center leading-tight">
-					<span class="font-semibold">{$playerStats.streak}</span>
-					<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Rad</span>
-				</span>
-				<span class="text-border">|</span>
-				<span class="flex flex-col items-center leading-tight">
-					<span class="font-semibold">{$playerStats.best}</span>
-					<span class="text-[10px] text-muted-foreground uppercase tracking-wide">Bäst</span>
-				</span>
-			</div>
-
-			<Button
-				variant="ghost"
-				size="sm"
-				onclick={handleReset}
-				class="text-muted-foreground text-xs px-2 justify-self-end sm:justify-self-auto"
-			>
-				Återställ
-			</Button>
-		</div>
+	<header class="px-4 py-2.5 flex items-center justify-between gap-3">
+		<a href="/" class="flex items-center gap-2.5 shrink-0 hover:opacity-80 transition-opacity">
+			<span class="size-6 rounded-full shrink-0" style="background: {logoDot}"></span>
+			<span class="font-serif font-semibold text-base leading-none">Gissa <em class="not-italic" style="color: var(--coral); font-style: italic;">partiet</em></span>
+		</a>
 
 		<div class="flex items-center gap-2 shrink-0">
-			<DarkModeToggle />
+			<a href="/stats" class="header-chip">Stats</a>
+			<button type="button" onclick={handleReset} class="header-chip cursor-pointer">Återställ</button>
+			<div class="header-chip">
+				<DarkModeToggle />
+			</div>
 		</div>
 	</header>
+
+	<div class="h-px bg-border"></div>
 
 	<div class="flex-1">
 		{@render children()}

@@ -11,6 +11,7 @@
 	import { Card } from '$lib/components/ui/card';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import AnswerButtons from '$lib/components/AnswerButtons.svelte';
+	import ScoreCards from '$lib/components/ScoreCards.svelte';
 	import RecentGuesses from '$lib/components/RecentGuesses.svelte';
 
 	const PARTY_NAMES: Record<Party, string> = {
@@ -173,6 +174,7 @@
 			guessedParty={gs.guessedParty}
 			correctParty={gs.correctParty}
 		/>
+		<ScoreCards />
 	{/if}
 
 	<RecentGuesses entries={$recentGuesses} />
