@@ -60,7 +60,7 @@
 	});
 
 	const pinBase =
-		'w-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-card border border-border shadow-sm text-foreground cursor-pointer transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring';
+		'w-full flex items-center justify-center md:justify-start gap-0 md:gap-2 px-2 md:px-2.5 py-3 md:py-2 rounded-xl bg-card border border-border shadow-sm text-foreground cursor-pointer transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring';
 
 	const pinStateClass = (revealing: boolean, hoverable: boolean) =>
 		revealing
@@ -85,7 +85,7 @@
 							aria-disabled={isRevealing}
 						>
 							<PartySymbol party={id} />
-							<span class="text-xs font-medium leading-tight" lang="sv">{shortLabels[id]}</span>
+							<span class="hidden md:inline text-xs font-medium leading-tight" lang="sv">{shortLabels[id]}</span>
 						</TooltipTrigger>
 						<TooltipContent>{name}</TooltipContent>
 					</Tooltip>
@@ -98,7 +98,7 @@
 						aria-disabled={isRevealing}
 					>
 						<PartySymbol party={id} />
-						<span class="text-xs font-medium leading-tight" lang="sv">{shortLabels[id]}</span>
+						<span class="hidden md:inline text-xs font-medium leading-tight" lang="sv">{shortLabels[id]}</span>
 					</Button>
 				{/if}
 
