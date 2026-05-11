@@ -22,7 +22,7 @@
 
 {#if party === 'Partilös'}
 	<span
-		class="flex size-11 items-center justify-center rounded-full"
+		class="flex size-11 shrink-0 items-center justify-center rounded-full"
 		style="background: radial-gradient(ellipse 70% 50% at 35% 28%, rgba(255,255,255,0.28) 0%, transparent 100%), {bg};"
 		aria-hidden="true"
 	>
@@ -31,8 +31,7 @@
 {:else}
 	<svg
 		viewBox="0 0 40 40"
-		width="44"
-		height="44"
+		class="block size-11 shrink-0"
 		aria-hidden="true"
 		xmlns="http://www.w3.org/2000/svg"
 	>
