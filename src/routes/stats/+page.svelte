@@ -91,14 +91,14 @@
 
 <main class="max-w-2xl mx-auto px-4 py-8 space-y-8">
 	<div class="flex items-center justify-between flex-wrap gap-2">
-		<h1 class="text-2xl font-bold tracking-tight">Statistik</h1>
-		<span class="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+		<h1 class="text-2xl font-serif font-semibold tracking-tight">Statistik</h1>
+		<span class="text-xs font-mono uppercase tracking-widest text-muted-foreground border border-border/60 bg-card rounded-full px-2.5 py-1 leading-none shadow-sm">
 			LIVE · uppdateras var 30 sekund
 		</span>
 	</div>
 
 	<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-		<Card>
+		<Card class="border-lemon/50" style="background-color: oklch(from var(--lemon) l c h / 0.25)">
 			<CardHeader class="pb-1">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Röster</CardTitle>
 			</CardHeader>
@@ -140,7 +140,7 @@
 	</div>
 
 	<section>
-		<h2 class="text-lg font-semibold mb-3">Träffsäkerhet per parti</h2>
+		<h2 class="font-serif text-lg font-semibold mb-3"><em>Träffsäkerhet</em> per parti</h2>
 		<Table>
 			<TableHeader>
 				<TableRow>
@@ -167,7 +167,7 @@
 	</section>
 
 	<section>
-		<h2 class="text-lg font-semibold mb-3">Förväxlingsmatris</h2>
+		<h2 class="font-serif text-lg font-semibold mb-3"><em>Förväxlingsmatris</em></h2>
 		<p class="text-sm text-muted-foreground mb-3">
 			Rader = verkligt parti · Kolumner = gissat parti · Värden = andel av radtotalen
 		</p>
@@ -189,7 +189,7 @@
 								{@const cell = matrixCell(row, col)}
 								<TableCell
 									class="text-center text-xs px-1 tabular-nums {row === col
-										? 'bg-green-50 dark:bg-green-950 font-semibold'
+										? 'bg-sage/20 dark:bg-sage/15 font-semibold'
 										: ''}"
 								>
 									{cell ? `${cell.pct.toLocaleString('sv-SE', { maximumFractionDigits: 1 })}%` : '—'}
@@ -203,7 +203,7 @@
 	</section>
 
 	<section>
-		<h2 class="text-lg font-semibold mb-3">Lättast att gissa</h2>
+		<h2 class="font-serif text-lg font-semibold mb-3"><em>Lättast</em> att gissa</h2>
 		<p class="text-sm text-muted-foreground mb-4">
 			Ledamöter som gissas rätt oftast per parti
 		</p>
@@ -220,7 +220,7 @@
 										<img
 											src={entry.photoUrl}
 											alt=""
-											class="w-8 h-8 rounded-full object-cover shrink-0"
+											class="w-8 h-8 rounded-full object-cover object-top shrink-0 border border-border"
 										/>
 									{/if}
 									<span class="font-medium truncate">
@@ -244,7 +244,7 @@
 	</section>
 
 	<section>
-		<h2 class="text-lg font-semibold mb-3">Svårast att gissa</h2>
+		<h2 class="font-serif text-lg font-semibold mb-3"><em>Svårast</em> att gissa</h2>
 		<p class="text-sm text-muted-foreground mb-4">
 			Ledamöter som gissas rätt minst per parti
 		</p>
@@ -261,7 +261,7 @@
 										<img
 											src={entry.photoUrl}
 											alt=""
-											class="w-8 h-8 rounded-full object-cover shrink-0"
+											class="w-8 h-8 rounded-full object-cover object-top shrink-0 border border-border"
 										/>
 									{/if}
 									<span class="font-medium truncate">
@@ -285,7 +285,7 @@
 	</section>
 
 	<section>
-		<h2 class="text-lg font-semibold mb-3">Verkar tillhöra ett annat parti</h2>
+		<h2 class="font-serif text-lg font-semibold mb-3">Verkar <em>tillhöra</em> ett annat parti</h2>
 		<p class="text-sm text-muted-foreground mb-4">
 			Ledamöter som oftast förväxlas med varje parti
 		</p>
@@ -302,7 +302,7 @@
 										<img
 											src={entry.photoUrl}
 											alt=""
-											class="w-8 h-8 rounded-full object-cover shrink-0"
+											class="w-8 h-8 rounded-full object-cover object-top shrink-0 border border-border"
 										/>
 									{/if}
 									<div class="min-w-0">
