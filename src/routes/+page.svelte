@@ -1,18 +1,16 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { fade } from 'svelte/transition';
 	import { fetchMPs } from '$lib/riksdagen';
 	import type { Party } from '$lib/riksdagen';
 	import { sampleMP } from '$lib/sample';
 	import { gameReducer, INITIAL_STATE, DWELL_MS } from '$lib/game-state';
-	import { readStats, writeStats, readGuesses, writeGuesses } from '$lib/storage';
+	import { readStats, writeStats, readGuesses, writeGuesses, clear } from '$lib/storage';
 	import { playerStats } from '$lib/player-stats';
 	import { recentGuesses } from '$lib/recent-guesses';
-	import { Card } from '$lib/components/ui/card';
-	import { Skeleton } from '$lib/components/ui/skeleton';
 	import AnswerButtons from '$lib/components/AnswerButtons.svelte';
 	import ScoreCards from '$lib/components/ScoreCards.svelte';
 	import RecentGuesses from '$lib/components/RecentGuesses.svelte';
+	import Polaroid from '$lib/components/Polaroid.svelte';
 
 	const PARTY_NAMES: Record<Party, string> = {
 		S: 'Socialdemokraterna', M: 'Moderaterna', SD: 'Sverigedemokraterna',
@@ -26,9 +24,11 @@
 	let gs = $state(INITIAL_STATE);
 	let sessionId = '';
 	let dwellTimer: ReturnType<typeof setTimeout> | null = null;
-	let revealKey = $state(0);
 	let prefersReducedMotion = $state(false);
 	let nextPhotoUrl = $state('');
+
+	const isCorrect = $derived(gs.guessedParty !== null && gs.guessedParty === gs.correctParty);
+	const partyName = $derived(gs.correctParty ? PARTY_NAMES[gs.correctParty] : '');
 
 	onMount(async () => {
 		const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -64,6 +64,12 @@
 		if (dwellTimer) clearTimeout(dwellTimer);
 	});
 
+	function handleReset() {
+		if (!confirm('Vill du återställa din spelhistorik? Poäng, streak och gissningar raderas.')) return;
+		clear(localStorage);
+		window.location.reload();
+	}
+
 	function handleGuess(guessedParty: Party) {
 		if (gs.phase !== 'idle' || !gs.currentMP) return;
 
@@ -71,7 +77,6 @@
 		gs = gameReducer(gs, { type: 'guess', guessedParty, correctParty });
 		playerStats.set(gs.stats);
 		writeStats(gs.stats, localStorage);
-		revealKey++;
 
 		recentGuesses.update((entries) => {
 			const updated = [
@@ -125,57 +130,39 @@
 		</p>
 	{/if}
 
-	<div class="w-full max-w-xs">
-		{#if loadStatus === 'loading'}
-			<Card class="py-0 overflow-hidden">
-				<Skeleton class="aspect-[10/11] w-full rounded-none" />
-			</Card>
-		{:else if loadStatus === 'ready' && gs.currentMP}
-			<Card class="py-0 overflow-hidden relative">
-				{#key gs.currentMP.id}
-					<img
-						in:fade={{ duration: prefersReducedMotion ? 0 : 150 }}
-						src={gs.currentMP.photoUrl}
-						alt=""
-						class="aspect-[10/11] w-full object-cover object-top block"
-					/>
-				{/key}
+	<div class="w-full max-w-5xl flex flex-col md:flex-row md:items-center md:justify-center md:gap-8 gap-4">
+		<div class="w-full max-w-sm mx-auto md:mx-0 md:flex-shrink-0">
+			<Polaroid
+				mp={gs.currentMP}
+				phase={gs.phase}
+				{isCorrect}
+				{partyName}
+				dwellMs={DWELL_MS}
+				{prefersReducedMotion}
+			/>
+		</div>
 
-				{#if gs.phase === 'revealing'}
-					<div
-						in:fade={{ duration: prefersReducedMotion ? 0 : 150 }}
-						class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"
+		{#if loadStatus === 'ready'}
+			<div class="w-full max-w-sm mx-auto md:mx-0 md:flex-1 md:max-w-md flex flex-col gap-4">
+				<AnswerButtons
+					onGuess={handleGuess}
+					phase={gs.phase}
+					guessedParty={gs.guessedParty}
+					correctParty={gs.correctParty}
+				/>
+				<div class="flex flex-col items-center gap-2 w-full">
+					<ScoreCards />
+					<button
+						type="button"
+						onclick={handleReset}
+						class="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 decoration-dotted cursor-pointer transition-colors"
 					>
-						<div class="absolute bottom-6 left-4 text-white">
-							<p class="font-semibold text-lg leading-tight">
-								{gs.currentMP.firstName} {gs.currentMP.lastName}
-							</p>
-							<p class="text-sm opacity-90">
-								{gs.correctParty ? PARTY_NAMES[gs.correctParty] : ''}
-							</p>
-						</div>
-					</div>
-
-					{#key revealKey}
-						<div
-							class="absolute bottom-0 left-0 h-1 bg-white"
-							style="animation: timerDeplete {DWELL_MS}ms linear forwards"
-						></div>
-					{/key}
-				{/if}
-			</Card>
+						Återställ
+					</button>
+				</div>
+			</div>
 		{/if}
 	</div>
-
-	{#if loadStatus === 'ready'}
-		<AnswerButtons
-			onGuess={handleGuess}
-			phase={gs.phase}
-			guessedParty={gs.guessedParty}
-			correctParty={gs.correctParty}
-		/>
-		<ScoreCards />
-	{/if}
 
 	<RecentGuesses entries={$recentGuesses} />
 </main>

@@ -60,7 +60,7 @@
 	});
 
 	const pinBase =
-		'flex items-center gap-2 px-2.5 py-2 rounded-xl bg-card border border-border shadow-sm text-foreground cursor-pointer transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring';
+		'w-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-card border border-border shadow-sm text-foreground cursor-pointer transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring';
 
 	const pinStateClass = (revealing: boolean, hoverable: boolean) =>
 		revealing
@@ -71,7 +71,7 @@
 </script>
 
 <TooltipProvider>
-	<div class="flex flex-wrap justify-center gap-2" role="group" aria-label="Gissa parti">
+	<div class="grid grid-cols-3 gap-2 w-full" role="group" aria-label="Gissa parti">
 		{#each parties as { id, name }}
 			{@const isCorrect = isRevealing && correctParty === id}
 			{@const isWrong = isRevealing && guessedParty === id && guessedParty !== correctParty}

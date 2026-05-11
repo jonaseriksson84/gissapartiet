@@ -62,8 +62,10 @@
 .dark {
 	--background: oklch(0.18 0.018 60);
 	--foreground: oklch(0.92 0.012 80);
-	--card: oklch(0.92 0.015 80);
-	--card-foreground: var(--ink);
+	/* Generic card surface is a lifted dark — the Polaroid uses --paper-2 directly
+	   so it stays paper-light regardless. Photo-on-a-dark-desk metaphor. */
+	--card: oklch(0.24 0.020 60);
+	--card-foreground: oklch(0.92 0.012 80);
 	--popover: oklch(0.24 0.020 60);
 	--popover-foreground: oklch(0.92 0.012 80);
 	--primary: oklch(0.92 0.012 80);
@@ -168,6 +170,18 @@
 
 .header-chip {
 	@apply inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-sm shadow-sm border border-border/60 text-foreground leading-none transition-colors;
+}
+
+/* Lead score card — soft lemon tint on paper in light mode, solid butter on dark mode */
+.score-lead {
+	background-color: oklch(from var(--lemon) l c h / 0.25);
+	border-color: color-mix(in oklch, var(--lemon) 50%, var(--border));
+	color: var(--ink);
+}
+:where(.dark) .score-lead {
+	background-color: var(--lemon);
+	border-color: color-mix(in oklch, var(--lemon) 70%, black);
+	color: var(--ink);
 }
 
 a.header-chip:hover,

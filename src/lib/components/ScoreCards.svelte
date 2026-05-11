@@ -42,9 +42,9 @@
 </script>
 
 <div class="flex gap-3 w-full max-w-xs">
-	<Card class="flex-1 flex flex-col items-center py-3 px-2 text-center border-lemon/50 {correctPulse ? 'score-pulse' : ''}" style="background-color: oklch(from var(--lemon) l c h / 0.25)">
+	<Card class="score-lead flex-1 flex flex-col items-center py-3 px-2 text-center {correctPulse ? 'score-pulse' : ''}">
 		<span class="font-mono font-semibold text-lg leading-tight tabular-nums">{$playerStats.correct}/{$playerStats.total}</span>
-		<span class="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">Rätt</span>
+		<span class="text-[10px] uppercase tracking-wide mt-0.5 opacity-70">Rätt</span>
 	</Card>
 
 	<Card class="flex-1 flex flex-col items-center py-3 px-2 text-center {streakPulse ? 'score-pulse' : ''}">

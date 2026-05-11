@@ -1,15 +1,8 @@
 <script lang="ts">
 	import './layout.css';
 	import DarkModeToggle from '$lib/components/DarkModeToggle.svelte';
-	import { clear } from '$lib/storage';
 
 	let { children } = $props();
-
-	function handleReset() {
-		if (!confirm('Vill du återställa din spelhistorik? Poäng, streak och gissningar raderas.')) return;
-		clear(localStorage);
-		window.location.reload();
-	}
 
 	const PARTY_COLORS = [
 		'#ED1B34', /* S */
@@ -65,14 +58,15 @@
 
 <div class="min-h-svh flex flex-col">
 	<header class="px-4 py-2.5 flex items-center justify-between gap-3">
-		<a href="/" class="flex items-center gap-2.5 shrink-0 hover:opacity-80 transition-opacity">
-			<span class="size-6 rounded-full shrink-0" style="background: {logoDot}"></span>
-			<span class="font-serif font-semibold text-base leading-none">Gissa <em class="not-italic" style="color: var(--coral); font-style: italic;">partiet</em></span>
-		</a>
+		<div class="flex items-center gap-3 shrink-0">
+			<a href="/" class="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+				<span class="size-6 rounded-full shrink-0" style="background: {logoDot}"></span>
+				<span class="font-serif font-semibold text-base leading-none">Gissa <em class="not-italic" style="color: var(--coral); font-style: italic;">partiet</em></span>
+			</a>
+			<a href="/stats" class="header-chip">Stats</a>
+		</div>
 
 		<div class="flex items-center gap-2 shrink-0">
-			<a href="/stats" class="header-chip">Stats</a>
-			<button type="button" onclick={handleReset} class="header-chip cursor-pointer">Återställ</button>
 			<div class="header-chip">
 				<DarkModeToggle />
 			</div>
